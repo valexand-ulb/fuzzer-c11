@@ -6,9 +6,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/stat.h>
-#include <time.h>
-
 
 #include "tar_header.h"
 
@@ -26,7 +25,11 @@ void initialize_tar_header(struct tar_t *header,
                             const char *uname,      // name of the user who owns the file
                             const char *gname);     // name of the group who owns the file
 
+void initialize_tar_headers(struct tar_t *headers, const char * filename);
+
 unsigned int calculate_checksum(struct tar_t* entry);
+
+void write_file_contents(FILE* tar_file, FILE* file);
 
 void generate_tar(const char *output_filename, int num_files, char *files[]);
 

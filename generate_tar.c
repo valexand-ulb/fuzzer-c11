@@ -17,21 +17,51 @@ void initialize_tar_header(struct tar_t *headers,
                             const char *magic,
                             const char *version,
                             const char *uname,
-                            const char *gname){
+                            const char *gname)
+{
     memset(headers, 0, sizeof(struct tar_t));
-    strncpy(headers->name, name, sizeof(headers->name));
-    strncpy(headers->mode, mode, sizeof(headers->mode));
-    strncpy(headers->uid, uid, sizeof(headers->uid));
-    strncpy(headers->gid, gid, sizeof(headers->gid));
-    strncpy(headers->size, size, sizeof(headers->size));
-    strncpy(headers->mtime, mtime, sizeof(headers->mtime));
-    headers->typeflag = *typeflag;
-    strncpy(headers->linkname, linkname, sizeof(headers->linkname));
-    strncpy(headers->magic, magic, sizeof(headers->magic));
-    strncpy(headers->version, version, sizeof(headers->version));
-    strncpy(headers->uname, uname, sizeof(headers->uname));
-    strncpy(headers->gname, gname, sizeof(headers->gname));
+    strncpy(headers->name, name, 100);
+    snprintf(headers->mode, sizeof(headers->mode), "%07o", 0644);
+    snprintf(headers->uid, sizeof(headers->uid), "%07o", getuid());
+    snprintf(headers->gid, sizeof(headers->gid), "%07o", getgid());
+    snprintf(headers->size, sizeof(headers->size), "%011o", 0);
+    snprintf(headers->mtime, sizeof(headers->mtime), "%011o", 0);
+    headers->typeflag = '0';
+    strncpy(headers->linkname, linkname, 100);
+    strncpy(headers->magic, magic, 6);
+    strncpy(headers->version, version, 2);
+    strncpy(headers->uname, uname, 32);
+    strncpy(headers->gname, gname, 32);
 }
+
+void initialize_tar_headers(struct tar_t *headers, const char * filename) {
+    struct stat file_stat;
+
+    if (stat(filename, &file_stat) == -1){
+        perror("Error getting file stats\n");
+        return;
+    }
+
+    strncpy(headers->name, filename, sizeof(headers->name)-1);
+    snprintf(headers->mode, sizeof(headers->mode), "%07o", 0644);
+    snprintf(headers->uid, sizeof(headers->uid), "%07o", getuid()); // getuid instead of file_stat.st_uid
+    snprintf(headers->gid, sizeof(headers->gid), "%07o", getgid()); // getgid instead of file_stat.st_gid
+    snprintf(headers->size, sizeof(headers->size), "%011o", (int) file_stat.st_size);
+    snprintf(headers->mtime, sizeof(headers->mtime), "%011o", (int) file_stat.st_mtime);
+    headers->typeflag = '0';
+    strncpy(headers->linkname, "", 100);
+    strncpy(headers->magic, "ustar", sizeof(headers->magic)-1);
+    strncpy(headers->version, "00", sizeof(headers->version));
+    strncpy(headers->uname, "alex", sizeof(headers->uname)-1);
+    strncpy(headers->gname, "alex", sizeof(headers->gname)-1);
+    strncpy(headers->devmajor, "", sizeof(headers->devmajor)-1);
+    strncpy(headers->devminor, "", sizeof(headers->devminor)-1);
+    strncpy(headers->prefix, "", sizeof(headers->prefix)-1);
+    strncpy(headers->padding, "", sizeof(headers->padding)-1);
+
+    calculate_checksum(headers);
+}
+
 
 unsigned int calculate_checksum(struct tar_t* entry){
     // use spaces for the checksum bytes while calculating the checksum
@@ -51,37 +81,40 @@ unsigned int calculate_checksum(struct tar_t* entry){
     return check;
 }
 
+
+void write_file_contents(FILE* tar_file, FILE* file){
+    char buffer[512];
+    size_t bytes_read;
+    while((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0){
+        fwrite(buffer, 1, bytes_read, tar_file);
+        if (bytes_read < sizeof(buffer)){
+            memset(buffer + bytes_read, 0, sizeof(buffer) - bytes_read);
+            fwrite(buffer + bytes_read, 1, sizeof(buffer) - bytes_read, tar_file);
+        }
+    }
+}
+
 void generate_tar(const char *output_filename, int num_files, char *files[]){
-    FILE *output_tar_file = fopen(output_filename, "wb");
-    if (!output_tar_file){
+    FILE* tar_file = fopen(output_filename, "w");
+    if(tar_file == NULL){
         perror("Error opening file\n");
         return;
     }
-
-    for (unsigned i=0; i < num_files; i++) {
-        const char *filename = files[i];
-
-        struct tar_t header;
-        initialize_tar_header(&header, filename, "0644", "1000", "1000", "0", "1635345324", "0", "", "ustar", "00", "username", "groupname");
-        calculate_checksum(&header);
-
-        fwrite(&header, sizeof(struct tar_t), 1, output_tar_file);
-
-        FILE *input_file = fopen(filename, "rb");
-        if (!input_file){
+    for (int i = 0; i < num_files; i++){
+        FILE* file = fopen(files[i], "r");
+        if(file == NULL){
             perror("Error opening file\n");
             return;
         }
-
-        char buffer[1024]; // double the size of the block size to mark end of file
-        size_t bytes_read;
-        while ((bytes_read = fread(buffer, 1, sizeof(buffer), input_file)) > 0){
-            fwrite(buffer, 1, bytes_read, output_tar_file);
-        }
-        fclose(input_file);
+        struct tar_t header = {0};
+        initialize_tar_headers(&header, files[i]);
+        //calculate_checksum(&header);
+        fwrite(&header, 1, sizeof(struct tar_t), tar_file);
+        write_file_contents(tar_file, file);
+        fclose(file);
     }
-    fclose(output_tar_file);
-
+    char end[1024] = {0}; // end of archive with two empty blocks of 512 bytes
+    fwrite(end, 1, sizeof(end), tar_file);
+    fclose(tar_file);
     printf("Archive created\n");
-
 }

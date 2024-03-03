@@ -4,8 +4,8 @@
 #include "generate_tar.h"
 
 int main(int argc, char* argv[]) {
-
-    //generate_tar("fichier1.txt", "archive.tar", "Hello World", 11);
+    char * files[] = {"file1.txt"};
+    generate_tar("archive.tar", 1, files);
 
     if (argc < 2){
         printf("Not enough arguments given");
