@@ -5,35 +5,11 @@
 #include "generate_tar.h"
 
 
-void initialize_tar_header(struct tar_t *headers,
-                            const char *name,
-                            const char *mode,
-                            const char *uid,
-                            const char *gid,
-                            const char *size,
-                            const char *mtime,
-                            const char *typeflag,
-                            const char *linkname,
-                            const char *magic,
-                            const char *version,
-                            const char *uname,
-                            const char *gname)
-{
-    memset(headers, 0, sizeof(struct tar_t));
-    strncpy(headers->name, name, 100);
-    snprintf(headers->mode, sizeof(headers->mode), "%07o", 0644);
-    snprintf(headers->uid, sizeof(headers->uid), "%07o", getuid());
-    snprintf(headers->gid, sizeof(headers->gid), "%07o", getgid());
-    snprintf(headers->size, sizeof(headers->size), "%011o", 0);
-    snprintf(headers->mtime, sizeof(headers->mtime), "%011o", 0);
-    headers->typeflag = '0';
-    strncpy(headers->linkname, linkname, 100);
-    strncpy(headers->magic, magic, 6);
-    strncpy(headers->version, version, 2);
-    strncpy(headers->uname, uname, 32);
-    strncpy(headers->gname, gname, 32);
-}
-
+/**
+ * Initializes the tar headers with default metadata of the file
+ * @param headers : pointer to the tar header
+ * @param filename: file name associated with the header
+ */
 void initialize_tar_headers(struct tar_t *headers, const char * filename) {
     struct stat file_stat;
 
@@ -62,7 +38,22 @@ void initialize_tar_headers(struct tar_t *headers, const char * filename) {
     calculate_checksum(headers);
 }
 
+/**
+ * Initializes the tar headers with fuzzed a secific metadata of the file. The specific metadata is determined by the padding
+ * @param headers : pointer to the tar header
+ * @param padding: padding to be used for fuzzing
+ * @param value: value to be used for fuzzing
+ */
+void initialize_fuzzed_tar_headers(struct tar_t *headers,unsigned padding, const char *value) {
+    char* ptr = (char*) headers+padding;
+    strncpy(ptr, value, strlen(value));
+}
 
+/**
+ * Calculates the checksum of the tar header
+ * @param entry : pointer to the tar header
+ * @return : checksum value
+ */
 unsigned int calculate_checksum(struct tar_t* entry){
     // use spaces for the checksum bytes while calculating the checksum
     memset(entry->chksum, ' ', 8);
@@ -81,7 +72,11 @@ unsigned int calculate_checksum(struct tar_t* entry){
     return check;
 }
 
-
+/**
+ * Writes the contents of the file to the tar file
+ * @param tar_file : pointer to the tar file
+ * @param file : pointer to the file
+ */
 void write_file_contents(FILE* tar_file, FILE* file){
     char buffer[512];
     size_t bytes_read;
@@ -94,6 +89,12 @@ void write_file_contents(FILE* tar_file, FILE* file){
     }
 }
 
+/**
+ * Generates a tar file with the given files
+ * @param output_filename : name of the tar file
+ * @param num_files : number of files to be included in the tar file
+ * @param files : array of file names
+ */
 void generate_tar(const char *output_filename, int num_files, char *files[]){
     FILE* tar_file = fopen(output_filename, "w");
     if(tar_file == NULL){
@@ -108,12 +109,12 @@ void generate_tar(const char *output_filename, int num_files, char *files[]){
         }
         struct tar_t header = {0};
         initialize_tar_headers(&header, files[i]);
-        //calculate_checksum(&header);
         fwrite(&header, 1, sizeof(struct tar_t), tar_file);
         write_file_contents(tar_file, file);
         fclose(file);
     }
     char end[1024] = {0}; // end of archive with two empty blocks of 512 bytes
+
     fwrite(end, 1, sizeof(end), tar_file);
     fclose(tar_file);
     printf("Archive created\n");

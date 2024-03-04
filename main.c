@@ -4,7 +4,7 @@
 #include "generate_tar.h"
 
 int main(int argc, char* argv[]) {
-    char * files[] = {"file1.txt"};
+    char * files[] = {"file1.txt", "file2.txt"};
     generate_tar("archive.tar", 1, files);
 
     if (argc < 2){
