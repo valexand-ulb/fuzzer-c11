@@ -4,6 +4,7 @@
 
 #include "generate_tar.h"
 
+#include "test.h"
 
 /**
  * Initializes the tar headers with default metadata of the file
@@ -96,6 +97,7 @@ void write_file_contents(FILE* tar_file, FILE* file){
  * @param files : array of file names
  */
 void generate_tar(const char *output_filename, int num_files, char *files[]){
+
     FILE* tar_file = fopen(output_filename, "w");
     if(tar_file == NULL){
         perror("Error opening file\n");
@@ -103,12 +105,21 @@ void generate_tar(const char *output_filename, int num_files, char *files[]){
     }
     for (int i = 0; i < num_files; i++){
         FILE* file = fopen(files[i], "r");
+
         if(file == NULL){
             perror("Error opening file\n");
             return;
         }
+
+        // generate the header for the file, write it to the tar file and then write the contents of the file to the tar file
         struct tar_t header = {0};
-        initialize_tar_headers(&header, files[i]);
+
+        /**
+         * HERE ARE PERFORMED THE TESTS, JUST SWITCH COMMENTED LINE TO TEST THE OTHER FUNCTION
+         **/
+        //initialize_tar_headers(&header, files[i]);        // <- TO SWITCH
+        test_all(&header);                                  // <- TO SWITCH
+
         fwrite(&header, 1, sizeof(struct tar_t), tar_file);
         write_file_contents(tar_file, file);
         fclose(file);

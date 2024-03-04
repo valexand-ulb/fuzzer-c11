@@ -2,3 +2,7 @@ cmake-build-debug/**
 my_program
 archive.tar
 
+/cmake-build-debug/
+/CMakeLists.txt
+/file1.txt
+/monfichier.txt

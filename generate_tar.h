@@ -11,7 +11,6 @@
 
 #include "tar_header.h"
 
-
 void initialize_tar_headers(struct tar_t *headers, const char * filename);
 
 void initialize_fuzzed_tar_headers(struct tar_t *headers,unsigned padding, const char *value);
