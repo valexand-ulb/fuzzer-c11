@@ -52,6 +52,7 @@ void attempt2(char* cmd) {
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
     strncpy(header1.name, "\xff", sizeof(header1.name)-1);
+    filenames[0] = "\xff";
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
@@ -59,10 +60,10 @@ void attempt2(char* cmd) {
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
-    printf("\nAttempt 2: non-ascii name \noutput : ");
+    printf("\nAttempt 2: Non-ascii name \noutput : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
-    remove_extracted_files({"\xff"});        // cleanup files
+    remove_extracted_files(filenames);      // cleanup files
 }
 
 /**
@@ -78,7 +79,7 @@ void attempt3(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
-    snprintf(header1.size, sizeof(header1.size), "%011o", 99999999999); // exactly 11, to fit size in header plus nullbyte
+    snprintf(header1.size, sizeof(header1.size), "%011o", 8589934591); // this gives 77777777777 (len: 11)
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
@@ -86,7 +87,7 @@ void attempt3(char* cmd) {
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
-    printf("\nAttempt 3: huge size in header \noutput : ");
+    printf("\nAttempt 3: Huge size in header \noutput : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);        // cleanup files
@@ -95,9 +96,7 @@ void attempt3(char* cmd) {
 /**
  * Attempt 4
  *
- * Huge size in header overflow last nullbyte
- *
- *  ( shouldn't work actually )
+ * Non-octal size in header
  */
 void attempt4(char* cmd) {
     const char* filenames[] = {"myfile"};
@@ -107,7 +106,7 @@ void attempt4(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
-    snprintf(header1.size, sizeof(header1.size), "%011o", 999999999999); // exactly 12, to overflow the nullbyte
+    header1.size = "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";     // len : 1 + 11 nullbyte
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
@@ -115,7 +114,7 @@ void attempt4(char* cmd) {
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
-    printf("\nAttempt 4: huge size in header overflow last nullbyte \noutput : ");
+    printf("\nAttempt 4: Non-octal size in header \noutput : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);        // cleanup files
