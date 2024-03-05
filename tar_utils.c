@@ -125,7 +125,7 @@ void write_tar_content_from_file(FILE *tar_file_ptr, const char *filename){
     printf("Archive appenend\n");
 }
 
-void write_tar_content(FILE *tar_file_ptr) {
+void write_tar_content(FILE *tar_file_ptr, const char *content) {
     fprintf(tar_file_ptr, "%s", content);
 
     printf("Archive appenend\n");

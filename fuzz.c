@@ -2,9 +2,9 @@
 
 void start_fuzzing() {
     // Declare an array of function pointers
-    void (*functionList[])() = {function1,
-                                function2,
-                                function3};
+    void (*functionList[])() = {attempt1,
+                                attempt2,
+                                attempt3};
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
 
