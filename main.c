@@ -22,12 +22,12 @@ int main(int argc, char* argv[]) {
     // first file added to the tar
     initialize_tar_headers(&header1, files[0]); // <- initialize the headers with the file1.txt info
     write_tar_header(tar_ptr, &header1); // <- write the headers to the tar file
-    write_tar_content(tar_ptr, files[0]); // <- write the file1.txt content to the tar file
+    write_tar_content(tar_ptr, "alec"); // <- write the file1.txt content to the tar file
 
     // second file added to the tar
     initialize_tar_headers(&header2, files[1]); // <- initialize the headers with the file2.txt info
     write_tar_header(tar_ptr, &header2); // <- write the headers to the tar file
-    write_tar_content(tar_ptr, files[1]); // <- write the file2.txt content to the tar file
+    write_tar_content(tar_ptr, "gilles"); // <- write the file2.txt content to the tar file
 
     close_tar_file(tar_ptr); // <- mandatory to close the tar file since it add the end of the archive
 

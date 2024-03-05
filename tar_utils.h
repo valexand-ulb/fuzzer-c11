@@ -32,10 +32,14 @@ void rename_tar_file(FILE* tar_file_ptr, const char* new_name);
 
 void write_tar_header(FILE* tar_file_ptr, struct tar_t *header);
 
-void write_tar_content(FILE *tar_file_ptr, const char *filename);
+void write_tar_content_from_file(FILE *tar_file_ptr, const char *filename);
+
+void write_tar_content(FILE *tar_file_ptr, const char *content);
 
 void write_end_of_tar(FILE* tar_file);
 
 void close_tar_file(FILE* tar_file_ptr);
+
+void remove_tar(const char* filename);
 
 #endif //FUZZER_GENERATE_TAR_H

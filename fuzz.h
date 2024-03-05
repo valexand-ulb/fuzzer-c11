@@ -5,9 +5,10 @@
 
 void start_fuzzing();
 
-//
-void function1();
-void function2();
-void function3();
+// --------------------
+void attempt1();
+void attempt2();
+void attempt3();
+// --------------------
 
 #endif //FUZZER_C11_FUZZ_H

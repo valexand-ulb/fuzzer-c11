@@ -5,6 +5,7 @@ void start_fuzzing() {
     void (*functionList[])() = {function1,
                                 function2,
                                 function3};
+
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
 
     // Iterate over the array and call each function
@@ -14,15 +15,15 @@ void start_fuzzing() {
 }
 
 
-void function1() {
+void attempt1() {
     printf("This is function 1\n");
 }
 
-void function2() {
+void attempt2() {
     printf("This is function 2\n");
 }
 
-void function3() {
+void attempt3() {
     printf("This is function 3\n");
 }
 

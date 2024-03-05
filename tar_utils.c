@@ -109,7 +109,7 @@ void write_tar_header(FILE* tar_file_ptr, struct tar_t *header){
     fwrite(header, 1, sizeof(struct tar_t), tar_file_ptr);
 }
 
-void write_tar_content(FILE *tar_file_ptr, const char *filename){
+void write_tar_content_from_file(FILE *tar_file_ptr, const char *filename){
     FILE* content_file = fopen(filename, "r");
 
     if(content_file == NULL){
@@ -121,6 +121,12 @@ void write_tar_content(FILE *tar_file_ptr, const char *filename){
 
     // close the file added to the tar
     fclose(content_file);
+
+    printf("Archive appenend\n");
+}
+
+void write_tar_content(FILE *tar_file_ptr) {
+    fprintf(tar_file_ptr, "%s", content);
 
     printf("Archive appenend\n");
 }
@@ -151,5 +157,14 @@ void close_tar_file(FILE* tar_file_ptr){
 void rename_tar_file(FILE* tar_file_ptr, const char* new_name){
     //fclose(tar_file_ptr); // close the file before renaming, otherwise it will not be renamed
     rename("archive.tar", new_name);
+}
+
+/**
+ * Removes specified file
+ *
+ * @param filename : name (path) of the file to be removed
+ */
+void remove_tar(const char* filename) {
+    remove(filename);
 }
 
