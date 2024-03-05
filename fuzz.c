@@ -16,12 +16,12 @@ void start_fuzzing(char* cmd) {
 
 
 void attempt1(char* cmd) {
-    char* filename[] = {"myfile"};
+    char* filenames[] = {"myfile"};
     struct tar_t header1 = {0};
 
     FILE * tar_ptr = create_tar_file("archive.tar");
 
-    initialize_tar_headers(&header1, filename[0], 5, time(NULL));
+    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
 
@@ -31,7 +31,7 @@ void attempt1(char* cmd) {
     printf("\nAttempt 1 output : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
-    remove_extracted_files()                // cleanup files
+    remove_extracted_files(filenames);      // cleanup files
 }
 
 void attempt2(char* cmd) {
