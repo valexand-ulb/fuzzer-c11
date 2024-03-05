@@ -12,6 +12,7 @@ void start_fuzzing(char* cmd);
 void attempt1(char* cmd);
 void attempt2(char* cmd);
 void attempt3(char* cmd);
+void attempt4(char* cmd);
 // --------------------
 
 #endif //FUZZER_C11_FUZZ_H
