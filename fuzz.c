@@ -79,7 +79,7 @@ void attempt3(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
-    snprintf(header1.size, sizeof(header1.size), "%011o", 8589934591); // this gives 77777777777 (len: 11)
+    snprintf(header1.size, sizeof(header1.size), "%011o", 4294967295); // this gives 37777777777 (len: 11) in octal
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
@@ -106,7 +106,7 @@ void attempt4(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
-    header1.size = "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";     // len : 1 + 11 nullbyte
+    strcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");     // len : 1 + 11 nullbyte
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);

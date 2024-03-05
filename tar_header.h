@@ -1,7 +1,3 @@
-//
-// Created by alex on 2/03/24.
-//
-
 #ifndef TAR_HEADER_H
 #define TAR_HEADER_H
 #define NAME_PADDIND 0
