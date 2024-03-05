@@ -1,6 +1,8 @@
 /cmake-build-debug/**
 my_program
 crashing_tar_files/archive.tar
+.idea/**
+**/archive.tar
 
 /cmake-build-debug/
 /CMakeLists.txt

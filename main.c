@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "fuzz.h"
-#include "generate_tar.h"
+#include "tar_utils.h"
 #include "test.h"
 #include "exec_tar.h"
 
