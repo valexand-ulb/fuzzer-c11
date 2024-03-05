@@ -2,8 +2,9 @@
 #include <string.h>
 #include "exec_tar.h"
 
-void execute_on_tar(char cmd[51]) {
+int execute_on_tar(char cmd[51]) {
     char buf[33];
+    int rv = 0;
     FILE *fp;
 
     if ((fp = popen(cmd, "r")) == NULL) {
@@ -31,7 +32,7 @@ void execute_on_tar(char cmd[51]) {
     return rv;
 }
 
-char[51] init_cmd(char* extractor) {
+char* init_cmd(char* extractor) {
     strncpy(cmd, extractor, 25);
     cmd[26] = '\0';
     strncat(cmd, " archive.tar", 25);
