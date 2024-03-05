@@ -51,7 +51,7 @@ void attempt2(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
-    strncpy(header1->name, "\xff", sizeof(header1->name)-1);
+    strncpy(header1.name, "\xff", sizeof(header1.name)-1);
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
@@ -78,7 +78,7 @@ void attempt3(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
-    snprintf(header1->size, sizeof(header1->size), "%011o", 99999999999); // exactly 11, to fit size in header plus nullbyte
+    snprintf(header1.size, sizeof(header1.size), "%011o", 99999999999); // exactly 11, to fit size in header plus nullbyte
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
@@ -107,7 +107,7 @@ void attempt4(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
-    snprintf(header1->size, sizeof(header1->size), "%011o", 999999999999); // exactly 12, to overflow the nullbyte
+    snprintf(header1.size, sizeof(header1.size), "%011o", 999999999999); // exactly 12, to overflow the nullbyte
     // ------------------------------
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
