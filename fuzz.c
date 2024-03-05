@@ -55,6 +55,7 @@ void attempt2(char* cmd) {
     strncpy(header1.name, "\xff", sizeof(header1.name)-1);
     filenames[0] = "\xff";
     // ------------------------------
+    calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
 
@@ -82,6 +83,7 @@ void attempt3(char* cmd) {
     // -------- header tweak --------
     snprintf(header1.size, sizeof(header1.size), "%011lo", 4294967295); // this gives 37777777777 (len: 11) in octal
     // ------------------------------
+    calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
 
@@ -109,6 +111,7 @@ void attempt4(char* cmd) {
     // -------- header tweak --------
     strcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");     // len : 1 + 11 nullbyte
     // ------------------------------
+    calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
 
