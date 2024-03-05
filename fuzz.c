@@ -27,7 +27,7 @@ void attempt1(char* cmd) {
 
     close_tar_file(tar_ptr);
 
-    // ======== TEST ========
+    // ============= TEST =============
     printf("\nAttempt 1 output : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar

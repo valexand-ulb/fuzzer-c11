@@ -1,6 +1,3 @@
-//
-// Created by alex on 2/03/24.
-//
 #ifndef FUZZER_GENERATE_TAR_H
 #define FUZZER_GENERATE_TAR_H
 

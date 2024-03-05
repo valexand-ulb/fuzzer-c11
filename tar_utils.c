@@ -1,10 +1,4 @@
-//
-// Created by alex on 2/03/24.
-//
-
 #include "tar_utils.h"
-
-#include "test.h"
 
 /**
  * Initializes the tar headers with default metadata of the file
