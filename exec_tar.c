@@ -32,7 +32,7 @@ int execute_on_tar(char cmd[51]) {
     return rv;
 }
 
-char* init_cmd(char* extractor) {
+void init_cmd(char* extractor, char* cmd) {
     strncpy(cmd, extractor, 25);
     cmd[26] = '\0';
     strncat(cmd, " archive.tar", 25);
