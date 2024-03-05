@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <time.h>
 #include "fuzz.h"
 #include "tar_utils.h"
 #include "test.h"
@@ -20,12 +21,12 @@ int main(int argc, char* argv[]) {
     // WARNING: YOU CAN USE intialize_fuzzed_tar_headers to fuzz a specific metadata of the tar header
 
     // first file added to the tar
-    initialize_tar_headers(&header1, files[0]); // <- initialize the headers with the file1.txt info
+    initialize_tar_headers(&header1, files[0], 4, time(NULL)); // <- initialize the headers with the file1.txt info
     write_tar_header(tar_ptr, &header1); // <- write the headers to the tar file
-    write_tar_content(tar_ptr, "alec", true); // <- write the file1.txt content to the tar file
+    write_tar_content(tar_ptr, "a\x41ec", true); // <- write the file1.txt content to the tar file
 
     // second file added to the tar
-    initialize_tar_headers(&header2, files[1]); // <- initialize the headers with the file2.txt info
+    initialize_tar_headers(&header2, files[1], 6, time(NULL)); // <- initialize the headers with the file2.txt info
     write_tar_header(tar_ptr, &header2); // <- write the headers to the tar file
     write_tar_content(tar_ptr, "gilles", true); // <- write the file2.txt content to the tar file
 
