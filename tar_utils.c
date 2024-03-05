@@ -125,8 +125,15 @@ void write_tar_content_from_file(FILE *tar_file_ptr, const char *filename){
     printf("Archive appenend\n");
 }
 
-void write_tar_content(FILE *tar_file_ptr, const char *content) {
+void write_tar_content(FILE *tar_file_ptr, const char *content, bool add_padding) {
     fprintf(tar_file_ptr, "%s", content);
+
+    if (add_padding) {
+        char zeroes[512] = {7};
+        int size_content = strlen(content);
+        int amount_to_add = 512 - (size_content % 512);
+        fwrite(zeroes, sizeof(char), amount_to_add, tar_file_ptr);
+    }
 
     printf("Archive appenend\n");
 }
