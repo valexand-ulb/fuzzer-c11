@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 
 #include "tar_header.h"
 
@@ -34,7 +35,7 @@ void write_tar_header(FILE* tar_file_ptr, struct tar_t *header);
 
 void write_tar_content_from_file(FILE *tar_file_ptr, const char *filename);
 
-void write_tar_content(FILE *tar_file_ptr, const char *content, bool add_padding = true);
+void write_tar_content(FILE *tar_file_ptr, const char *content, bool add_padding);
 
 void write_end_of_tar(FILE* tar_file);
 
