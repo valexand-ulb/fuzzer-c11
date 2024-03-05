@@ -16,7 +16,7 @@ void start_fuzzing(char* cmd) {
 
 
 void attempt1(char* cmd) {
-    char* filenames[] = {"myfile"};
+    const char* filenames[] = {"myfile"};
     struct tar_t header1 = {0};
 
     FILE * tar_ptr = create_tar_file("archive.tar");
