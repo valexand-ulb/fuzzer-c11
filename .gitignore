@@ -1,8 +1,8 @@
 /cmake-build-debug/**
 my_program
-archive.tar
+crashing_tar_files/archive.tar
 
 /cmake-build-debug/
 /CMakeLists.txt
-/file1.txt
+/test_files/file1.txt
 /monfichier.txt

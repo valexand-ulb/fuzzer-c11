@@ -5,7 +5,7 @@
 #ifndef TEST_H
 #define TEST_H
 
-#include "generate_tar.h"
+#include "tar_utils.h"
 
 void test_filename(struct tar_t *headers);
 
