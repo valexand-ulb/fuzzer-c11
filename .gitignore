@@ -1,6 +1,7 @@
 /cmake-build-debug/**
 my_program
 archive.tar
+.idea/**
 
 /cmake-build-debug/
 /CMakeLists.txt
