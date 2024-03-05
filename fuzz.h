@@ -2,13 +2,16 @@
 #define FUZZER_C11_FUZZ_H
 
 #include <stdio.h>
+#include "tar_utils.h"
+#include <time.h>
+#include "exec_tar.h"
 
-void start_fuzzing();
+void start_fuzzing(char* cmd);
 
 // --------------------
-void attempt1();
-void attempt2();
-void attempt3();
+void attempt1(char* cmd);
+void attempt2(char* cmd);
+void attempt3(char* cmd);
 // --------------------
 
 #endif //FUZZER_C11_FUZZ_H

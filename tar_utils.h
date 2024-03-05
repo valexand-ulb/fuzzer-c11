@@ -44,4 +44,6 @@ void close_tar_file(FILE* tar_file_ptr);
 
 void remove_tar(const char* filename);
 
+void remove_extracted_files(const char** filenames);
+
 #endif //FUZZER_GENERATE_TAR_H

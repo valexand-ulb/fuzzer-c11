@@ -196,3 +196,11 @@ void remove_tar(const char* filename) {
     remove(filename);
 }
 
+void remove_extracted_files(const char** filenames) {
+    while (*filenames != NULL) {
+        const char* filename = *filenames;
+        remove(filename)
+        filenames++;
+    }
+}
+
