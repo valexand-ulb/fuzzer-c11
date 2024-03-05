@@ -4,7 +4,8 @@ void start_fuzzing(char* cmd) {
     // Declare an array of function pointers
     void (*functionList[])() = {attempt1,
                                 attempt2,
-                                attempt3};
+                                attempt3,
+                                attempt4};
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
 
