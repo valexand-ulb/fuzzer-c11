@@ -12,9 +12,10 @@
 
 // HEADERS MANIPULATION
 void initialize_tar_headers_from_file(struct tar_t *header, const char* filename);
+
 void initialize_tar_headers(struct tar_t *header, const char* filename, int size, int mtime);
 
-void initialize_fuzzed_tar_headers(struct tar_t *header,unsigned padding, const char *value);
+void initialize_fuzzed_tar_headers(struct tar_t *header,unsigned padding, const char *value, const char *format);
 
 unsigned int calculate_checksum(struct tar_t* entry);
 

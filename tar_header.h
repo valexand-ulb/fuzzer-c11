@@ -1,6 +1,6 @@
 #ifndef TAR_HEADER_H
 #define TAR_HEADER_H
-#define NAME_PADDIND 0
+#define NAME_PADDING 0
 #define MODE_PADDING 100
 #define UID_PADDING 108
 #define GID_PADDING 116

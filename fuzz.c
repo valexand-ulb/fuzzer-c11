@@ -26,14 +26,14 @@ void attempt1(char* cmd) {
 
     FILE * tar_ptr = create_tar_file("archive.tar");
 
-    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+    initialize_tar_headers(&header1, filenames[0], 5, time(NULL)); // default tar header
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
 
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
-    printf("\nAttempt 1 output : ");
+    printf("\nAttempt 1 \n\toutput : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);      // cleanup files
@@ -53,6 +53,7 @@ void attempt2(char* cmd) {
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
     strncpy(header1.name, "\xff", sizeof(header1.name)-1);
+    //initialize_fuzzed_tar_headers(&header1, NAME_PADDING, "😃\0", "%c");
     filenames[0] = "\xff";
     // ------------------------------
     calculate_checksum(&header1);
@@ -62,7 +63,7 @@ void attempt2(char* cmd) {
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
-    printf("\nAttempt 2: Non-ascii name \noutput : ");
+    printf("\nAttempt 2: Non-ascii name \n\toutput : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);      // cleanup files
@@ -82,6 +83,7 @@ void attempt3(char* cmd) {
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
     snprintf(header1.size, sizeof(header1.size), "%011lo", 4294967295); // this gives 37777777777 (len: 11) in octal
+    //initialize_fuzzed_tar_headers(&header1, SIZE_PADDING,"4294967295", "%011lo");
     // ------------------------------
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
@@ -90,7 +92,7 @@ void attempt3(char* cmd) {
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
-    printf("\nAttempt 3: Huge size in header \noutput : ");
+    printf("\nAttempt 3: Huge size in header \n\toutput : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);        // cleanup files
@@ -109,6 +111,7 @@ void attempt4(char* cmd) {
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
+    //initialize_fuzzed_tar_headers(&header1, SIZE_PADDING, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", "%s");
     strcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");     // len : 1 + 11 nullbyte
     // ------------------------------
     calculate_checksum(&header1);
@@ -118,7 +121,7 @@ void attempt4(char* cmd) {
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
-    printf("\nAttempt 4: Non-octal size in header \noutput : ");
+    printf("\nAttempt 4: Non-octal size in header \n\toutput : ");
     execute_on_tar(cmd);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);        // cleanup files
