@@ -11,7 +11,6 @@
 
 
 // HEADERS MANIPULATION
-void initialize_tar_headers_from_file(struct tar_t *header, const char* filename);
 
 void initialize_tar_headers(struct tar_t *header, const char* filename, int size, int mtime);
 

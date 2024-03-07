@@ -1,38 +1,11 @@
 #include "tar_utils.h"
 
+
 /**
- * Initializes the tar headers with default metadata of the file
- * @param headers : pointer to the tar header
- * @param filename: file name associated with the header
+ * Initializes the tar headers with the metadata of the file and default value for size and time
+ * @param header : pointer to the tar header
+ * @param filename : name of the file
  */
-void initialize_tar_headers_from_file(struct tar_t *header, const char* filename) {
-    struct stat file_stat;
-
-    if (stat(filename, &file_stat) == -1){
-        perror("Error getting file stats\n");
-        return;
-    }
-
-    strncpy(header->name, filename, sizeof(header->name)-1);
-    snprintf(header->mode, sizeof(header->mode), "%07o", 0644);
-    snprintf(header->uid, sizeof(header->uid), "%07o", getuid()); // getuid instead of file_stat.st_uid
-    snprintf(header->gid, sizeof(header->gid), "%07o", getgid()); // getgid instead of file_stat.st_gid
-    snprintf(header->size, sizeof(header->size), "%011o", (int) file_stat.st_size);
-    snprintf(header->mtime, sizeof(header->mtime), "%011o", (int) file_stat.st_mtime);
-    header->typeflag = '0';
-    strncpy(header->linkname, "", 100);
-    strncpy(header->magic, "ustar", sizeof(header->magic)-1);
-    strncpy(header->version, "00", sizeof(header->version));
-    strncpy(header->uname, "alex", sizeof(header->uname)-1);
-    strncpy(header->gname, "alex", sizeof(header->gname)-1);
-    strncpy(header->devmajor, "", sizeof(header->devmajor)-1);
-    strncpy(header->devminor, "", sizeof(header->devminor)-1);
-    strncpy(header->prefix, "", sizeof(header->prefix)-1);
-    strncpy(header->padding, "", sizeof(header->padding)-1);
-
-    calculate_checksum(header);
-}
-
 void initialize_tar_headers(struct tar_t *header, const char* filename, int size, int mtime) {
     strncpy(header->name, filename, sizeof(header->name)-1);
     snprintf(header->mode, sizeof(header->mode), "%07o", 0644);

@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <string.h>
 #include "exec_tar.h"
+
 
 void rename_crash_archive(int crash_number) {
     char oldname[] = "archive.tar";
     char newname[50];
-    snprintf(newname, 50, "crashing_tar/crash%d.tar", crash_number);
+    snprintf(newname, 50, "crashing_tar_files/crash%d.tar", crash_number);
 
     if(rename(oldname, newname) == 0) {
         printf("File renamed successfully\n");
@@ -37,6 +36,7 @@ int execute_on_tar(char cmd[51]) {
         rv = 1;
 
         // TODO : Move tar file into crashing_tar folder, maybe it will make the program crash since it will not find archive.tar
+        // The renaming work fine but need testing with the  whole program
         rename_crash_archive(crash_number);
 
         goto finally;
@@ -46,6 +46,8 @@ int execute_on_tar(char cmd[51]) {
         printf("Command not found\n");
         rv = -1;
     }
+
+    sleep(3); // TODO : REMOVE WHEN TESTING IS DONE. SLEEP IS SET TO LET TIME FOR THE PROGRAM TO CRASH
     return rv;
 }
 
