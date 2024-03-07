@@ -133,7 +133,7 @@ void attempt4(char* cmd) {
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
     //initialize_fuzzed_tar_headers(&header1, SIZE_PADDING, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", "%s");
-    strcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");     // len : 1 + 11 nullbyte
+    memcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", sizeof(header1.size));     // len : 1 + 11 nullbyte
     // ------------------------------
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
