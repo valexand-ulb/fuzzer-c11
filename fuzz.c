@@ -12,6 +12,27 @@ void start_fuzzing(char* cmd) {
     }
 }
 
+char* make_arch_name(int nbr1, int nbr2) {
+    char attempt_num_str[10];
+    sprintf(attempt_num_str, "%d", nbr1);
+
+    char iter_num_str[10];
+    sprintf(iter_num_str, "%d", nbr2);
+
+    char arch_name[40] = "archive";
+    strcat(arch_name, attempt_num_str);
+    strcat(arch_name, "-");
+    strcat(arch_name, iter_num_str);
+    strcat(arch_name, ".tar");
+
+    // allocating memory
+    char* result = (char*)malloc(40 * sizeof(char));
+
+    strcpy(result, arch_name);
+
+    return result;
+}
+
 /**
  * Attempt 1
  *
@@ -32,7 +53,8 @@ void attempt1(char* cmd) {
     // ============= TEST =============
     printf("\nAttempt 1 \n\toutput : ");
     execute_on_tar(cmd);
-    remove_tar("archive.tar");      // cleanup tar
+    //remove_tar("archive.tar");      // cleanup tar
+    rename_tar_file(tar_ptr, "archive1.tar");
     remove_extracted_files(filenames);      // cleanup files
 }
 
@@ -45,7 +67,7 @@ void attempt2(char* cmd) {
     const char* filenames[] = {"myfile"};
     struct tar_t header1 = {0};
 
-    FILE * tar_ptr = create_tar_file("archive.tar");
+    FILE * tar_ptr = create_tar_file("archive2.tar");
 
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
@@ -62,7 +84,8 @@ void attempt2(char* cmd) {
     // ============= TEST =============
     printf("\nAttempt 2: Non-ascii name \n\toutput : ");
     execute_on_tar(cmd);
-    remove_tar("archive.tar");      // cleanup tar
+    //remove_tar("archive2.tar");      // cleanup tar
+    rename_tar_file(tar_ptr, "archive2.tar");
     remove_extracted_files(filenames);      // cleanup files
 }
 
@@ -91,7 +114,8 @@ void attempt3(char* cmd) {
     // ============= TEST =============
     printf("\nAttempt 3: Huge size in header \n\toutput : ");
     execute_on_tar(cmd);
-    remove_tar("archive.tar");      // cleanup tar
+    //remove_tar("archive.tar");      // cleanup tar
+    rename_tar_file(tar_ptr, "archive3.tar");
     remove_extracted_files(filenames);        // cleanup files
 }
 
@@ -120,7 +144,8 @@ void attempt4(char* cmd) {
     // ============= TEST =============
     printf("\nAttempt 4: Non-octal size in header \n\toutput : ");
     execute_on_tar(cmd);
-    remove_tar("archive.tar");      // cleanup tar
+    //remove_tar("archive.tar");      // cleanup tar
+    rename_tar_file(tar_ptr, "archive4.tar");
     remove_extracted_files(filenames);        // cleanup files
 }
 
@@ -150,6 +175,8 @@ void attempt5(char *cmd) {
         const char *filenames[] = {"myfile"};
         struct tar_t header1 = {0};
 
+        //char* arch_name = make_arch_name(5, i+1);
+
         FILE *tar_ptr = create_tar_file("archive.tar");
 
         initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
@@ -166,8 +193,12 @@ void attempt5(char *cmd) {
         // ============= TEST =============
         printf("- attempt 5.%d: non null terminated field\n\toutput : ", i+1);
         execute_on_tar(cmd);
-        remove_tar("archive.tar");      // cleanup tar
+        //remove_tar("archive.tar");        // cleanup tar
+        char* arch_name = make_arch_name(5, i+1);
+        rename_tar_file(tar_ptr, arch_name);
+        free(arch_name);
         remove_extracted_files(filenames);        // cleanup files
+        //free(arch_name);
     }
 }
 
@@ -214,7 +245,10 @@ void attempt6(char *cmd) {
         // ============= TEST =============
         printf("- attempt 6.%d: Empty field\n\toutput : ", i+1);
         execute_on_tar(cmd);
-        remove_tar("archive.tar");      // cleanup tar
+        //remove_tar("archive.tar");      // cleanup tar
+        char* arch_name = make_arch_name(6, i+1);
+        rename_tar_file(tar_ptr, arch_name);
+        free(arch_name);
         remove_extracted_files(filenames);        // cleanup files
     }
 }

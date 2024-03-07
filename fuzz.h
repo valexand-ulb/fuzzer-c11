@@ -2,11 +2,13 @@
 #define FUZZER_C11_FUZZ_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "tar_utils.h"
 #include <time.h>
 #include "exec_tar.h"
 
 void start_fuzzing(char* cmd);
+char* make_arch_name(int nbr);
 
 // --------------------
 void attempt1(char* cmd);

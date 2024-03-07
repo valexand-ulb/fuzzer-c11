@@ -47,7 +47,7 @@ int execute_on_tar(char cmd[51]) {
         rv = -1;
     }
 
-    sleep(3); // TODO : REMOVE WHEN TESTING IS DONE. SLEEP IS SET TO LET TIME FOR THE PROGRAM TO CRASH
+    //sleep(3); // TODO : REMOVE WHEN TESTING IS DONE. SLEEP IS SET TO LET TIME FOR THE PROGRAM TO CRASH
     return rv;
 }
 
