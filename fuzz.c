@@ -28,6 +28,7 @@ void start_fuzzing(char* cmd) {
         attempt7,
         attempt8,
         attempt9,
+        attempt10,
     };
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
@@ -326,8 +327,9 @@ void attempt8(char *cmd) {
 }
 
 /**
-* Attempt 9 : Empty tar with no header
+* Attempt 9
 *
+* Empty tar with no header
 */
 void attempt9(char *cmd) {
     printf("Attempt 9: Empty tar with no header\n");
@@ -342,4 +344,37 @@ void attempt9(char *cmd) {
 
     execute_on_tar(cmd, 9);
     remove_tar("archive.tar");      // cleanup tar
+}
+
+/**
+ * Attempt 10
+ *
+ * Different value for typeflag header
+ */
+void attempt10(char *cmd) {
+    printf("Attempt 10: Different value for typeflag header\n");
+    const char *filenames[] = {"test_files/file1.txt"};
+
+    for (int i=0; i < 2; i++) {
+        struct tar_t header1 = {0};
+
+        FILE *tar_ptr = create_tar_file("archive.tar");
+        initialize_tar_headers_from_file(&header1,filenames[0]);
+
+        // -------- header tweak --------
+        initialize_fuzzed_tar_headers_intval(&header1, TYPEFLAG_PADDING, i, "%u");
+        // ------------------------------
+
+        calculate_checksum(&header1);
+        write_tar_header(tar_ptr, &header1);
+        write_tar_content_from_file(tar_ptr, filenames[0]);
+        write_end_of_tar(tar_ptr);
+
+        close_tar_file(tar_ptr);
+
+        // ============= TEST =============
+        printf("- attempt 10.%d: Different value for typeflag header\n\toutput : ", i+1);
+        execute_on_tar(cmd, 10);
+        //remove_tar("archive.tar");      // cleanup tar
+    }
 }
