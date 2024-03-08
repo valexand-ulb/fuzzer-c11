@@ -3,8 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "tar_utils.h"
 #include <time.h>
+
+#include "tar_utils.h"
 #include "exec_tar.h"
 
 void start_fuzzing(char* cmd);
@@ -17,7 +18,10 @@ void attempt3(char* cmd);
 void attempt4(char* cmd);
 void attempt5(char* cmd);
 void attempt6(char* cmd);
-
+void attempt7(char* cmd);
+void attempt8(char* cmd);
 // --------------------
+
+extern const unsigned int PADDINGS[11];
 
 #endif //FUZZER_C11_FUZZ_H
