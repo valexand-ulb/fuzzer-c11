@@ -20,6 +20,7 @@ void attempt5(char* cmd);
 void attempt6(char* cmd);
 void attempt7(char* cmd);
 void attempt8(char* cmd);
+void attempt9(char* cmd);
 // --------------------
 
 extern const unsigned int PADDINGS[11];

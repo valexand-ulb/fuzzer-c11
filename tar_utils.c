@@ -76,9 +76,7 @@ void initialize_fuzzed_tar_headers(struct tar_t *header,unsigned padding, const 
 
 void initialize_fuzzed_tar_headers_intval(struct tar_t * header, unsigned padding, int * value, const char *format) {
     char* ptr = (char*) header+padding;
-    //snprintf(ptr, strlen(value), format, value);
     snprintf(ptr, sizeof(ptr), format, value);
-    //strncpy(ptr, value, strlen(value));
 }
 
 /**

@@ -5,7 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
-int execute_on_tar(char cmd[51]);
+extern unsigned CRASH_NUMBER;
+extern unsigned LAST_ATTEMPT;
+
+int execute_on_tar(char cmd[51], unsigned current_attempt);
 
 void init_cmd(char* extractor, char* cmd);
 

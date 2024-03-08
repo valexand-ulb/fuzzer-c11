@@ -19,14 +19,15 @@ void start_fuzzing(char* cmd) {
     // Declare an array of function pointers
     void (*functionList[])() =
     {
-        //attempt1,
-        //attempt2,
-        //attempt3,
-        //attempt4,
-        //attempt5,
-        //attempt6,
-        //attempt7,
+        attempt1,
+        attempt2,
+        attempt3,
+        attempt4,
+        attempt5,
+        attempt6,
+        attempt7,
         attempt8,
+        attempt9,
     };
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
@@ -72,12 +73,13 @@ void attempt1(char* cmd) {
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL)); // default tar header
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
+    write_end_of_tar(tar_ptr);
 
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
     printf("\nAttempt 1 \n\toutput : ");
-    execute_on_tar(cmd);
+    execute_on_tar(cmd, 1);
     remove_tar("archive.tar");      // cleanup tar
     rename_tar_file(tar_ptr, "archive1.tar");
     remove_extracted_files(filenames);      // cleanup files
@@ -88,30 +90,33 @@ void attempt1(char* cmd) {
  *
  * Non-ascii name
  */
-void attempt2(char* cmd) {
-    const char* filenames[] = {"myfile"};
-    struct tar_t header1 = {0};
 
-    FILE * tar_ptr = create_tar_file("archive2.tar");
+void attempt2(char * cmd) {
+    const char *filenames[] = {"test_files/file1.txt"};
 
-    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
-    // -------- header tweak --------
-    strncpy(header1.name, "\xff", sizeof(header1.name)-1);
-    //initialize_fuzzed_tar_headers(&header1, NAME_PADDING, "😃\0", "%c");
-    filenames[0] = "\xff";
-    // ------------------------------
-    calculate_checksum(&header1);
-    write_tar_header(tar_ptr, &header1);
-    write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
+    printf("Attempt 2: Non-ascii name \n");
 
-    close_tar_file(tar_ptr);
+    for (unsigned i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++) {
+        struct tar_t header1 = {0};
 
-    // ============= TEST =============
-    printf("\nAttempt 2: Non-ascii name \n\toutput : ");
-    execute_on_tar(cmd);
-    remove_tar("archive2.tar");      // cleanup tar
-    rename_tar_file(tar_ptr, "archive2.tar");
-    remove_extracted_files(filenames);      // cleanup files
+        FILE *tar_ptr = create_tar_file("archive.tar");
+
+        initialize_tar_headers_from_file(&header1, filenames[0]);
+        // -------- header tweak --------
+        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "😃\0", "%s");
+        // ------------------------------
+        calculate_checksum(&header1);
+        write_tar_header(tar_ptr, &header1);
+        write_tar_content_from_file(tar_ptr, filenames[0]);
+        write_end_of_tar(tar_ptr);
+
+        close_tar_file(tar_ptr);
+
+        printf("\t- attempt 2.%d: Non-ascii name\n\toutput : ", i+1);
+        execute_on_tar(cmd, 2);
+        remove_tar("archive.tar");
+    }
+
 }
 
 /**
@@ -133,12 +138,13 @@ void attempt3(char* cmd) {
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
+    write_end_of_tar(tar_ptr);
 
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
     printf("\nAttempt 3: Huge size in header \n\toutput : ");
-    execute_on_tar(cmd);
+    execute_on_tar(cmd, 3);
     remove_tar("archive.tar");      // cleanup tar
     rename_tar_file(tar_ptr, "archive3.tar");
     remove_extracted_files(filenames);        // cleanup files
@@ -163,12 +169,13 @@ void attempt4(char* cmd) {
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
     write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
+    write_end_of_tar(tar_ptr);
 
     close_tar_file(tar_ptr);
 
     // ============= TEST =============
     printf("\nAttempt 4: Non-octal size in header \n\toutput : ");
-    execute_on_tar(cmd);
+    execute_on_tar(cmd, 4);
     remove_tar("archive.tar");      // cleanup tar
     rename_tar_file(tar_ptr, "archive4.tar");
     remove_extracted_files(filenames);        // cleanup files
@@ -181,12 +188,12 @@ void attempt4(char* cmd) {
  * non null terminated field
  */
 void attempt5(char *cmd) {
-
+    const char *filenames[] = {"test_files/file1.txt"};
     printf("\nAttempt 5: non null terminated field \n");
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
-        const char *filenames[] = {"myfile"};
+
         struct tar_t header1 = {0};
 
         //char* arch_name = make_arch_name(5, i+1);
@@ -200,19 +207,15 @@ void attempt5(char *cmd) {
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
-        write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
+        write_tar_content_from_file(tar_ptr,filenames[0]);
+        write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
 
         // ============= TEST =============
         printf("- attempt 5.%d: non null terminated field\n\toutput : ", i+1);
-        execute_on_tar(cmd);
+        execute_on_tar(cmd, 5);
         remove_tar("archive.tar");        // cleanup tar
-        char* arch_name = make_arch_name(5, i+1);
-        rename_tar_file(tar_ptr, arch_name);
-        free(arch_name);
-        remove_extracted_files(filenames);        // cleanup files
-        //free(arch_name);
     }
 }
 
@@ -224,12 +227,11 @@ void attempt5(char *cmd) {
  */
 
 void attempt6(char *cmd) {
-
+    const char *filenames[] = {"test_files/file1.txt"};
     printf("\nAttempt 6: Empty field \n");
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
-        const char *filenames[] = {"test_files/file1.txt"};
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
@@ -242,12 +244,13 @@ void attempt6(char *cmd) {
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
+        write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
 
         // ============= TEST =============
         printf("- attempt 6.%d: Empty field\n\toutput : ", i+1);
-        execute_on_tar(cmd);
+        execute_on_tar(cmd, 6);
         remove_tar("archive.tar");      // cleanup tar
     }
 }
@@ -259,11 +262,11 @@ void attempt6(char *cmd) {
  */
 
 void attempt7(char *cmd) {
+    const char *filenames[] = {"test_files/file1.txt"};
     printf("\nAttempt 7: Int format instead of char * or octal \n");
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
-        const char *filenames[] = {"test_files/file1.txt"};
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
@@ -276,12 +279,13 @@ void attempt7(char *cmd) {
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
+        write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
 
         // ============= TEST =============
         printf("- attempt 7.%d: Int format instead of char * or octal\n\toutput : ", i+1);
-        execute_on_tar(cmd);
+        execute_on_tar(cmd, 7);
         remove_tar("archive.tar");      // cleanup tar
     }
 }
@@ -292,13 +296,13 @@ void attempt7(char *cmd) {
  * Specific value for time padding
  */
 void attempt8(char *cmd) {
+    const char *filenames[] = {"test_files/file1.txt"};
     printf("\nAttempt 8: Specific value for time padding \n");
 
     // 2147483649 is the value for the bug of year 2038, thanks to Alan for the tips time(NULL) * time(NULL)
     time_t time_list[] = {-1, 0, 1, time(NULL), time(NULL) + 2147483649, time(NULL) - 2147483649, time(NULL) * time(NULL)};
 
     for (unsigned i = 0; i < sizeof(time_list)/sizeof(time_t); i++) {
-        const char *filenames[] = {"test_files/file1.txt"};
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
@@ -310,12 +314,32 @@ void attempt8(char *cmd) {
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
+        write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
 
         // ============= TEST =============
         printf("- attempt 8.%d: Specific value for time padding\n\toutput : ", i+1);
-        execute_on_tar(cmd);
+        execute_on_tar(cmd, 8);
         remove_tar("archive.tar");      // cleanup tar
     }
+}
+
+/**
+* Attempt 9 : Empty tar with no header
+*
+*/
+void attempt9(char *cmd) {
+    printf("Attempt 9: Empty tar with no header\n");
+    struct tar_t header1 = {0};
+
+    FILE *tar_ptr = create_tar_file("archive.tar");
+
+    write_tar_header(tar_ptr, &header1);
+    write_end_of_tar(tar_ptr);
+
+    close_tar_file(tar_ptr);
+
+    execute_on_tar(cmd, 9);
+    remove_tar("archive.tar");      // cleanup tar
 }

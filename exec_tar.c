@@ -1,5 +1,7 @@
 #include "exec_tar.h"
 
+unsigned CRASH_NUMBER = 0;
+unsigned LAST_ATTEMPT = 0;
 
 void rename_crash_archive(int crash_number) {
     char oldname[] = "archive.tar";
@@ -13,8 +15,7 @@ void rename_crash_archive(int crash_number) {
     }
 }
 
-int execute_on_tar(char cmd[51]) {
-    int crash_number = 0; // Number of crashes due to a tar file
+int execute_on_tar(char cmd[51], unsigned current_attempt) {
     char buf[33];
     int rv = 0;
     FILE *fp;
@@ -37,7 +38,11 @@ int execute_on_tar(char cmd[51]) {
 
         // TODO : Move tar file into crashing_tar folder, maybe it will make the program crash since it will not find archive.tar
         // The renaming work fine but need testing with the  whole program
-        rename_crash_archive(crash_number);
+        if (current_attempt != LAST_ATTEMPT) {
+            rename_crash_archive(CRASH_NUMBER);
+            CRASH_NUMBER++;
+            LAST_ATTEMPT = current_attempt;
+        }
 
         goto finally;
     }
@@ -47,7 +52,7 @@ int execute_on_tar(char cmd[51]) {
         rv = -1;
     }
 
-    sleep(3); // TODO : REMOVE WHEN TESTING IS DONE. SLEEP IS SET TO LET TIME FOR THE PROGRAM TO CRASH
+    //sleep(3); // TODO : REMOVE WHEN TESTING IS DONE. SLEEP IS SET TO LET TIME FOR THE PROGRAM TO CRASH
     return rv;
 }
 
