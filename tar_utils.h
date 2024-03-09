@@ -26,8 +26,6 @@ unsigned int calculate_checksum(struct tar_t* entry);
 // FILE CONTENT MANIPULATION
 void write_file_contents(FILE* tar_file, FILE* file);
 
-
-
 // TAR MANIPULATION
 FILE * create_tar_file(const char* filename);
 

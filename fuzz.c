@@ -29,6 +29,8 @@ void start_fuzzing(char* cmd) {
         attempt8,
         attempt9,
         attempt10,
+        attempt11,
+        attempt12,
     };
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
@@ -375,6 +377,70 @@ void attempt10(char *cmd) {
         // ============= TEST =============
         printf("- attempt 10.%d: Different value for typeflag header\n\toutput : ", i+1);
         execute_on_tar(cmd, 10);
-        //remove_tar("archive.tar");      // cleanup tar
+        remove_tar("archive.tar");      // cleanup tar
     }
+}
+
+/**
+ * Attempt 11
+ *
+ * Tar archive on a folder and setting the typeflag to '5' (directory)
+ */
+void attempt11(char * cmd) {
+    printf("Attempt 11: Tar archive on a folder and setting the typeflag to '5' (directory)\n");
+    const char *filenames[] = {"test_files"};
+
+    struct tar_t header1 = {0};
+
+    FILE *tar_ptr = create_tar_file("archive.tar");
+    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+    //initialize_tar_headers_from_file(&header1, filenames[0]);
+
+    // -------- header tweak --------
+    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5", "%d");
+    // ------------------------------
+
+    calculate_checksum(&header1);
+    write_tar_header(tar_ptr, &header1);
+    //write_tar_content_from_file(tar_ptr, "test_files");
+    write_end_of_tar(tar_ptr);
+
+    close_tar_file(tar_ptr);
+
+    // ============= TEST =============
+    printf("- attempt 11: Tar archive on a folder and setting the typeflag to '5' (directory)\n\toutput : ");
+    execute_on_tar(cmd, 11);
+    remove_tar("archive.tar");      // cleanup tar
+
+}
+
+/**
+ * Attempt 12
+ *
+ * Tar archive on a folder but setting the typeflag to '0' (regular file)
+ */
+void attempt12(char * cmd) {
+    printf("Attempt 12: Tar archive on a folder but setting the typeflag to '0' (regular file)\n");
+    const char *filenames[] = {"test_files"};
+
+    struct tar_t header1 = {0};
+
+    FILE *tar_ptr = create_tar_file("archive.tar");
+    initialize_tar_headers_from_file(&header1, filenames[0]);
+
+    // -------- header tweak --------
+    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "0", "%d");
+    // ------------------------------
+
+    calculate_checksum(&header1);
+    write_tar_header(tar_ptr, &header1);
+    //write_tar_content_from_file(tar_ptr, "test_files");
+    write_end_of_tar(tar_ptr);
+
+    close_tar_file(tar_ptr);
+
+    // ============= TEST =============
+    printf("- attempt 12: Tar archive on a folder but setting the typeflag to '0' (regular file)\n\toutput : ");
+    execute_on_tar(cmd, 12);
+    remove_tar("archive.tar");      // cleanup tar
 }
