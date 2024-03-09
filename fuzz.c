@@ -31,6 +31,7 @@ void start_fuzzing(char* cmd) {
         attempt10,
         attempt11,
         attempt12,
+        attempt13,
     };
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
@@ -442,5 +443,38 @@ void attempt12(char * cmd) {
     // ============= TEST =============
     printf("- attempt 12: Tar archive on a folder but setting the typeflag to '0' (regular file)\n\toutput : ");
     execute_on_tar(cmd, 12);
+    remove_tar("archive.tar");      // cleanup tar
+}
+
+/**
+ * Attempt 13
+ *
+ * Tar archive on a file but setting the filename and the typeflag to directory
+ */
+
+void attempt13(char * cmd) {
+    printf("Attempt 13: Tar archive on a file but setting the filename and the typeflag to directory\n");
+    const char *filenames[] = {"test_files/file1.txt"};
+
+    struct tar_t header1 = {0};
+
+    FILE *tar_ptr = create_tar_file("archive.tar");
+    initialize_tar_headers_from_file(&header1, filenames[0]);
+
+    // -------- header tweak --------
+    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5", "%d");
+    initialize_fuzzed_tar_headers(&header1, NAME_PADDING, "test_files/file1.txt/", "%s");
+    // ------------------------------
+
+    calculate_checksum(&header1);
+    write_tar_header(tar_ptr, &header1);
+    write_tar_content_from_file(tar_ptr, filenames[0]);
+    write_end_of_tar(tar_ptr);
+
+    close_tar_file(tar_ptr);
+
+    // ============= TEST =============
+    printf("- attempt 13: Tar archive on a file but setting the filename and the typeflag to directory\n\toutput : ");
+    execute_on_tar(cmd, 13);
     remove_tar("archive.tar");      // cleanup tar
 }

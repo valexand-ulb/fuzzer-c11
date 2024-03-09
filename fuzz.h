@@ -24,6 +24,7 @@ void attempt9(char* cmd); // empty tar with no header
 void attempt10(char* cmd); // different typeflag value
 void attempt11(char* cmd); // directory instead of file
 void attempt12(char* cmd); // directory but typeflag is not 5
+void attempt13(char* cmd); // file but the filename and the typeflag are set to directory
 // --------------------
 
 extern const unsigned int PADDINGS[11];
