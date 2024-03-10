@@ -68,10 +68,14 @@ void initialize_tar_headers(struct tar_t *header, const char* filename, int size
  * @param padding: padding to be used for fuzzing
  * @param value: value to be used for fuzzing
  */
-void initialize_fuzzed_tar_headers(struct tar_t *header,unsigned padding, const char *value, const char *format) {
-    char* ptr = (char*) header+padding;
-    snprintf(ptr, strlen(value), format, value);
-    //strncpy(ptr, value, strlen(value));
+void initialize_fuzzed_tar_headers(struct tar_t *header,unsigned padding, const char *value) {
+    // char* ptr = (char*) header+padding;
+    // snprintf(ptr, strlen(value), format, value);
+
+    char *ptr = (char *) header + padding;
+    size_t size = strlen(value);
+
+    memcpy(ptr, value, size);
 }
 
 void initialize_fuzzed_tar_headers_intval(struct tar_t * header, unsigned padding, int * value, const char *format) {

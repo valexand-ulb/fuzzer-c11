@@ -32,6 +32,9 @@ void start_fuzzing(char* cmd) {
         attempt11,
         attempt12,
         attempt13,
+        attempt14,
+        attempt15,
+        attempt16
     };
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
@@ -107,7 +110,7 @@ void attempt2(char * cmd) {
 
         initialize_tar_headers_from_file(&header1, filenames[0]);
         // -------- header tweak --------
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "😃\0", "%s");
+        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "😃\0");
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
@@ -207,7 +210,7 @@ void attempt5(char *cmd) {
         initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
         // -------- header tweak --------
         //strncpy(header1.name, "AAAAAA", sizeof(header1.name)); // non null terminated
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "A", "%s");
+        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "A");
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
@@ -243,7 +246,7 @@ void attempt6(char *cmd) {
         //initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
         // -------- header tweak --------
         //strncpy(header1.name, "AAAAAA", sizeof(header1.name)); // non null terminated
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "", "");
+        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "");
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
@@ -278,7 +281,7 @@ void attempt7(char *cmd) {
         //initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
         // -------- header tweak --------
         //strncpy(header1.name, "AAAAAA", sizeof(header1.name)); // non null terminated
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "1234567890", "%d");
+        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "1234567890");
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
@@ -304,7 +307,7 @@ void attempt8(char *cmd) {
     printf("\nAttempt 8: Specific value for time padding \n");
 
     // 2147483649 is the value for the bug of year 2038, thanks to Alan for the tips time(NULL) * time(NULL)
-    time_t time_list[] = {-1, 0, 1, time(NULL), time(NULL) + 2147483649, time(NULL) - 2147483649, time(NULL) * time(NULL)};
+    time_t time_list[] = {-1, 0, 1, time(NULL), time(NULL) + 2147483649, time(NULL) - 2147483649, time(NULL) * time(NULL), - time(NULL)};
 
     for (unsigned i = 0; i < sizeof(time_list)/sizeof(time_t); i++) {
         struct tar_t header1 = {0};
@@ -358,14 +361,18 @@ void attempt10(char *cmd) {
     printf("Attempt 10: Different value for typeflag header\n");
     const char *filenames[] = {"test_files/file1.txt"};
 
-    for (int i=0; i < 2; i++) {
+    for (int i=-1; i < 5; i++) {
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
         initialize_tar_headers_from_file(&header1,filenames[0]);
 
         // -------- header tweak --------
-        initialize_fuzzed_tar_headers_intval(&header1, TYPEFLAG_PADDING, i, "%u");
+
+        char *buffer = (char *) malloc(2 * sizeof(char)); // int to char *
+        snprintf(buffer, 2, "%u", i);
+
+        initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, buffer);
         // ------------------------------
 
         calculate_checksum(&header1);
@@ -398,7 +405,7 @@ void attempt11(char * cmd) {
     //initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5", "%d");
+    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -430,7 +437,7 @@ void attempt12(char * cmd) {
     initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "0", "%d");
+    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "0");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -462,8 +469,8 @@ void attempt13(char * cmd) {
     initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5", "%d");
-    initialize_fuzzed_tar_headers(&header1, NAME_PADDING, "test_files/file1.txt/", "%s");
+    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5");
+    initialize_fuzzed_tar_headers(&header1, NAME_PADDING, "test_files/file1.txt/");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -478,3 +485,107 @@ void attempt13(char * cmd) {
     execute_on_tar(cmd, 13);
     remove_tar("archive.tar");      // cleanup tar
 }
+
+/**
+ * Attempt 14
+ *
+ * File specified in header is not the same as the file in the tar
+ */
+void attempt14(char * cmd) {
+    printf("Attempt 14: File specified in header is not the same as the file in the tar\n");
+    const char *filenames[] = {"test_files/file1.txt", "test_files/file2.txt"};
+
+    struct tar_t header1 = {0};
+
+    FILE *tar_ptr = create_tar_file("archive.tar");
+    initialize_tar_headers_from_file(&header1, filenames[0]);
+
+    // -------- header tweak --------
+    initialize_fuzzed_tar_headers(&header1, NAME_PADDING, filenames[1]);
+    // ------------------------------
+
+    calculate_checksum(&header1);
+    write_tar_header(tar_ptr, &header1);
+    write_tar_content_from_file(tar_ptr, filenames[0]);
+    write_end_of_tar(tar_ptr);
+
+    close_tar_file(tar_ptr);
+
+    // ============= TEST =============
+    printf("- attempt 14: File specified in header is not the same as the file in the tar\n\toutput : ");
+    execute_on_tar(cmd, 14);
+    remove_tar("archive.tar"); // cleanup tar
+}
+
+/**
+ * Attempt 15
+ *
+ * Char * value, generally a string null terminated
+ */
+void attempt15(char * cmd) {
+    printf("Attempt 15: Char * value, generally a string null terminated\n");
+    const char *filenames[] = {"test_files/file1.txt"};
+
+    for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
+    {
+        struct tar_t header1 = {0};
+
+        FILE *tar_ptr = create_tar_file("archive.tar");
+        initialize_tar_headers_from_file(&header1, filenames[0]);
+
+        // -------- header tweak --------
+        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "alex\0");
+        // ------------------------------
+
+        calculate_checksum(&header1);
+        write_tar_header(tar_ptr, &header1);
+        write_tar_content_from_file(tar_ptr, filenames[0]);
+        write_end_of_tar(tar_ptr);
+
+        close_tar_file(tar_ptr);
+
+        // ============= TEST =============
+        printf("- attempt 15.%d: Char * value, generally a string null terminated\n\toutput : ", i+1);
+        execute_on_tar(cmd, 15);
+        remove_tar("archive.tar");      // cleanup tar
+    }
+}
+
+/**
+ * Attempt 16
+ *
+ * Escape sequence in fields
+ */
+void attempt16(char * cmd) {
+    printf("Attempt 16: Escape sequence in fields\n");
+    const char * escape_sequence[] = {"\n", "\t", "\r", "\b", "\a", "\f", "\v", "\\", "\'", "\"", "\?", "\0"};
+    const char *filenames[] = {"test_files/file1.txt"};
+
+    for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
+    {
+        for (unsigned int j = 0; j < sizeof(escape_sequence)/sizeof(char*); j++)
+        {
+            struct tar_t header1 = {0};
+
+            FILE *tar_ptr = create_tar_file("archive.tar");
+            initialize_tar_headers_from_file(&header1, filenames[0]);
+
+            // -------- header tweak --------
+            initialize_fuzzed_tar_headers(&header1, PADDINGS[i], escape_sequence[j]);
+            // ------------------------------
+
+            calculate_checksum(&header1);
+            write_tar_header(tar_ptr, &header1);
+            write_tar_content_from_file(tar_ptr, filenames[0]);
+            write_end_of_tar(tar_ptr);
+
+            close_tar_file(tar_ptr);
+
+            // ============= TEST =============
+            printf("- attempt 16.%d.%d: Escape sequence in fields\n\toutput : ", i+1, j+1);
+            execute_on_tar(cmd, 16);
+            remove_tar("archive.tar");      // cleanup tar
+        }
+    }
+}
+

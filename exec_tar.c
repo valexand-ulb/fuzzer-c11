@@ -39,7 +39,7 @@ int execute_on_tar(char cmd[51], unsigned current_attempt) {
         // TODO : Move tar file into crashing_tar folder, maybe it will make the program crash since it will not find archive.tar
         // The renaming work fine but need testing with the  whole program
         if (current_attempt != LAST_ATTEMPT) {
-            rename_crash_archive(CRASH_NUMBER);
+            rename_crash_archive(current_attempt);
             CRASH_NUMBER++;
             LAST_ATTEMPT = current_attempt;
         }
