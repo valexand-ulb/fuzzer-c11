@@ -266,7 +266,8 @@ void attempt7(char *cmd) {
         //initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
         // -------- header tweak --------
         //strncpy(header1.name, "AAAAAA", sizeof(header1.name)); // non null terminated
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "1234567890");
+        int value = 123456789;
+        initialize_fuzzed_tar_headers_intval(&header1, PADDINGS[i], &value,"%d");
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
@@ -569,7 +570,7 @@ void attempt16(char * cmd) {
             close_tar_file(tar_ptr);
 
             // ============= TEST =============
-            printf("- attempt 16.%d.%d: Escape sequence in fields\n\toutput : ", i+1, j+1);
+            printf("- attempt 16.%d.%d: Escape sequence %s in fields\n\toutput : ", i+1, j+1, escape_sequence[j]);
             execute_on_tar(cmd, 16, i+1, j+1);
             remove_tar("archive.tar");      // cleanup tar
         }
