@@ -1,9 +1,7 @@
 #include "exec_tar.h"
 
-unsigned CRASH_NUMBER = 0;
-unsigned LAST_ATTEMPT = 0;
 
-void rename_crash_archive(int crash_number) {
+/*void rename_crash_archive(int crash_number) {
     char oldname[] = "archive.tar";
     char newname[50];
     snprintf(newname, 50, "crashing_tar_files/crash%d.tar", crash_number);
@@ -13,9 +11,9 @@ void rename_crash_archive(int crash_number) {
     } else {
         printf("Error: unable to rename the file\n");
     }
-}
+}*/
 
-int execute_on_tar(char cmd[51], unsigned current_attempt) {
+int execute_on_tar(char cmd[51], int current_attempt, int current_attempt_step, int current_attempt_sub_step) {
     char buf[33];
     int rv = 0;
     FILE *fp;
@@ -36,13 +34,9 @@ int execute_on_tar(char cmd[51], unsigned current_attempt) {
         printf("Crash message\n");
         rv = 1;
 
-        // TODO : Move tar file into crashing_tar folder, maybe it will make the program crash since it will not find archive.tar
-        // The renaming work fine but need testing with the  whole program
-        if (current_attempt != LAST_ATTEMPT) {
-            rename_crash_archive(current_attempt);
-            CRASH_NUMBER++;
-            LAST_ATTEMPT = current_attempt;
-        }
+        // rename file if success (non-renamed files will be removed)
+        char* new_name = make_arch_name(current_attempt, current_attempt_step, current_attempt_sub_step);
+        rename("archive.tar", new_name);
 
         goto finally;
     }
@@ -52,8 +46,37 @@ int execute_on_tar(char cmd[51], unsigned current_attempt) {
         rv = -1;
     }
 
-    //sleep(3); // TODO : REMOVE WHEN TESTING IS DONE. SLEEP IS SET TO LET TIME FOR THE PROGRAM TO CRASH
     return rv;
+}
+
+char* make_arch_name(int nbr1, int nbr2, int nbr3) {
+    char attempt_num_str[5];
+    sprintf(attempt_num_str, "%d", nbr1);
+
+    char iter_num_str[5];
+    sprintf(iter_num_str, "%d", nbr2);
+
+    char arch_name[40] = "archive";
+    strcat(arch_name, attempt_num_str);
+    strcat(arch_name, "-");
+    strcat(arch_name, iter_num_str);
+
+    // Add the third number only if there is one (i.e. it is 0)
+    if (nbr3 > 0) {
+        char sub_iter_num_str[5];
+        sprintf(sub_iter_num_str, "%d", nbr3);
+        strcat(arch_name, "-");
+        strcat(arch_name, sub_iter_num_str);
+    }
+
+    strcat(arch_name, ".tar");
+
+    // allocating memory
+    char* result = (char*)malloc(40 * sizeof(char));
+
+    strcpy(result, arch_name);
+
+    return result;
 }
 
 void init_cmd(char* extractor, char* cmd) {

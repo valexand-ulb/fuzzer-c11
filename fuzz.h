@@ -9,7 +9,6 @@
 #include "exec_tar.h"
 
 void start_fuzzing(char* cmd);
-char* make_arch_name(int nbr1, int nbr2);
 
 // --------------------
 void attempt1(char* cmd); // simple tar archive
