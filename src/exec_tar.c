@@ -56,7 +56,7 @@ char* make_arch_name(int nbr1, int nbr2, int nbr3) {
     char iter_num_str[5];
     sprintf(iter_num_str, "%d", nbr2);
 
-    char arch_name[40] = "archive";
+    char arch_name[40] = "success_archive";
     strcat(arch_name, attempt_num_str);
     strcat(arch_name, "-");
     strcat(arch_name, iter_num_str);
