@@ -82,7 +82,7 @@ void attempt1(char* cmd) {
 
     // ============= TEST =============
     printf("\nAttempt 1.1 \n\toutput : ");
-    execute_on_tar(cmd, 1, 1, 0);
+    execute_on_tar(cmd, 1, 1, 0, true);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);      // cleanup files
 }
@@ -120,7 +120,7 @@ void attempt2(char * cmd) {
         close_tar_file(tar_ptr);
 
         printf("\t- attempt 2.%d: Non-ascii value\n\toutput : ", i+1);
-        execute_on_tar(cmd, 2, i+1, 0);
+        execute_on_tar(cmd, 2, i+1, 0, true);
         remove_tar("archive.tar");
     }
 
@@ -151,7 +151,7 @@ void attempt3(char* cmd) {
 
     // ============= TEST =============
     printf("\nAttempt 3.1: Huge size in header \n\toutput : ");
-    execute_on_tar(cmd, 3, 1, 0);
+    execute_on_tar(cmd, 3, 1, 0, true);
     remove_tar("archive.tar");      // cleanup tar
     remove_extracted_files(filenames);        // cleanup files
 }
@@ -185,7 +185,7 @@ void attempt4(char* cmd) {
 
         // ============= TEST =============
         printf("\nAttempt 4.%d: Non-octal size in header \n\toutput : ", i+1);
-        execute_on_tar(cmd, 4, i+1, 0);
+        execute_on_tar(cmd, 4, i+1, 0, true);
         remove_tar("archive.tar");      // cleanup tar
         remove_extracted_files(filenames);        // cleanup files
     }
@@ -223,7 +223,7 @@ void attempt5(char *cmd) {
 
         // ============= TEST =============
         printf("- attempt 5.%d: non null terminated field\n\toutput : ", i+1);
-        execute_on_tar(cmd, 5, i+1, 0);
+        execute_on_tar(cmd, 5, i+1, 0, true);
         remove_tar("archive.tar");        // cleanup tar
     }
 }
@@ -259,7 +259,7 @@ void attempt6(char *cmd) {
 
         // ============= TEST =============
         printf("- attempt 6.%d: Empty field\n\toutput : ", i+1);
-        execute_on_tar(cmd, 6, i+1, 0);
+        execute_on_tar(cmd, 6, i+1, 0, true);
         remove_tar("archive.tar");      // cleanup tar
     }
 }
@@ -295,7 +295,7 @@ void attempt7(char *cmd) {
 
         // ============= TEST =============
         printf("- attempt 7.%d: Int format instead of char * or octal\n\toutput : ", i+1);
-        execute_on_tar(cmd, 7, i+1, 0);
+        execute_on_tar(cmd, 7, i+1, 0, true);
         remove_tar("archive.tar");      // cleanup tar
     }
 }
@@ -330,7 +330,7 @@ void attempt8(char *cmd) {
 
         // ============= TEST =============
         printf("- attempt 8.%d: Specific value for time padding\n\toutput : ", i+1);
-        execute_on_tar(cmd, 8, i+1, 0);
+        execute_on_tar(cmd, 8, i+1, 0, true);
         remove_tar("archive.tar");      // cleanup tar
     }
 }
@@ -353,7 +353,7 @@ void attempt9(char *cmd) {
 
     // ============= TEST =============
     printf("Attempt 9.1: Empty tar with no header\n\toutput : ");
-    execute_on_tar(cmd, 9, 1, 0);
+    execute_on_tar(cmd, 9, 1, 0, true);
     remove_tar("archive.tar");      // cleanup tar
 }
 
@@ -389,7 +389,7 @@ void attempt10(char *cmd) {
 
         // ============= TEST =============
         printf("- attempt 10.%d: Different value for typeflag header\n\toutput : ", i+1);
-        execute_on_tar(cmd, 10, i+1, 0);
+        execute_on_tar(cmd, 10, i+1, 0, true);
         remove_tar("archive.tar");      // cleanup tar
     }
 }
@@ -421,7 +421,7 @@ void attempt11(char * cmd) {
 
     // ============= TEST =============
     printf("- attempt 11.1: Tar archive on a folder and setting the typeflag to '5' (directory)\n\toutput : ");
-    execute_on_tar(cmd, 11, 1, 0);
+    execute_on_tar(cmd, 11, 1, 0, true);
     remove_tar("archive.tar");      // cleanup tar
 
 }
@@ -453,7 +453,7 @@ void attempt12(char * cmd) {
 
     // ============= TEST =============
     printf("- attempt 12.1: Tar archive on a folder but setting the typeflag to '0' (regular file)\n\toutput : ");
-    execute_on_tar(cmd, 12, 1, 0);
+    execute_on_tar(cmd, 12, 1, 0, true);
     remove_tar("archive.tar");      // cleanup tar
 }
 
@@ -486,7 +486,7 @@ void attempt13(char * cmd) {
 
     // ============= TEST =============
     printf("- attempt 13.1: Tar archive on a file but setting the filename and the typeflag to directory\n\toutput : ");
-    execute_on_tar(cmd, 13, 1, 0);
+    execute_on_tar(cmd, 13, 1, 0, true);
     remove_tar("archive.tar");      // cleanup tar
 }
 
@@ -517,7 +517,7 @@ void attempt14(char * cmd) {
 
     // ============= TEST =============
     printf("- attempt 14.1: File specified in header is not the same as the file in the tar\n\toutput : ");
-    execute_on_tar(cmd, 14, 1, 0);
+    execute_on_tar(cmd, 14, 1, 0, true);
     remove_tar("archive.tar"); // cleanup tar
 }
 
@@ -553,7 +553,7 @@ void attempt15(char * cmd) {
 
         // ============= TEST =============
         printf("- attempt 15.%d: Char * value, generally a string null terminated\n\toutput : ", i+1);
-        execute_on_tar(cmd, 15, i+1, 0);
+        execute_on_tar(cmd, 15, i+1, 0, true);
         remove_tar("archive.tar");      // cleanup tar
     }
 }
@@ -597,7 +597,7 @@ void attempt16(char * cmd) {
 
             // ============= TEST =============
             printf("- attempt 16.%d.%d: Escape sequence %s in fields\n\toutput : ", i+1, j+1, escape_sequence[j]);
-            execute_on_tar(cmd, 16, i+1, j+1);
+            execute_on_tar(cmd, 16, i+1, j+1, true);
             remove_tar("archive.tar");      // cleanup tar
         }
     }
@@ -609,10 +609,9 @@ void attempt16(char * cmd) {
  *
  * try all values at first byte of each header
  */
-
 void attempt17(char * cmd) {
     const char *filenames[] = {"exec_files/file1.txt"};
-
+    int amount_found = 0;
     printf("Attempt 17: First byte bruteforce ...\n");
 
     for (unsigned i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++) {
@@ -637,11 +636,13 @@ void attempt17(char * cmd) {
             close_tar_file(tar_ptr);
 
             // not showing output bcs too long
-            execute_on_tar(cmd, 17, i+1, j);
+            if (execute_on_tar(cmd, 17, i+1, j, false) == 1) {
+                amount_found++;
+            }
             remove_tar("archive.tar");
         }
     }
-
+    printf("Found %d crashes for attempt 17", amount_found);
 }
 
 /**
@@ -649,10 +650,9 @@ void attempt17(char * cmd) {
  *
  * try all values at last byte of each header
  */
-
 void attempt18(char * cmd) {
     const char *filenames[] = {"exec_files/file1.txt"};
-
+    int amount_found = 0;
     printf("Attempt 18: Last byte bruteforce ...\n");
 
     for (unsigned i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++) {
@@ -677,10 +677,12 @@ void attempt18(char * cmd) {
             close_tar_file(tar_ptr);
 
             // not showing output bcs too long
-            execute_on_tar(cmd, 18, i+1, j);
+            if (execute_on_tar(cmd, 18, i+1, j, false) == 1) {
+                amount_found++;
+            }
             remove_tar("archive.tar");
         }
     }
-
+    printf("Found %d crashes for attempt 17", amount_found);
 }
 

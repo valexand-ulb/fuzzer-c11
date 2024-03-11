@@ -13,25 +13,25 @@
     }
 }*/
 
-int execute_on_tar(char cmd[51], int current_attempt, int current_attempt_step, int current_attempt_sub_step) {
+int execute_on_tar(char cmd[51], int current_attempt, int current_attempt_step, int current_attempt_sub_step, bool print_output) {
     char buf[33];
     int rv = 0;
     FILE *fp;
 
     if ((fp = popen(cmd, "r")) == NULL) {
-        printf("Error opening pipe!\n");
+        if (print_output) { printf("Error opening pipe!\n"); }
         return -1;
     }
 
     if(fgets(buf, 33, fp) == NULL) {
-        printf("No output\n");
+        if (print_output) { printf("No output\n"); }
         goto finally;
     }
     if(strncmp(buf, "*** The program has crashed ***\n", 33)) {
-        printf("Not the crash message\n");
+        if (print_output) { printf("Not the crash message\n"); }
         goto finally;
     } else {
-        printf("Crash message\n");
+        if (print_output) { printf("Crash message\n"); }
         rv = 1;
 
         // rename file if success (non-renamed files will be removed)
