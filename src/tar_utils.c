@@ -229,7 +229,7 @@ void remove_directory(const char *path) {
     int r;
 
     struct dirent *dir;
-    char full_path[50];
+    char full_path[257];
 
     if (!d) {
         perror("Error while removing a dir : opendir");
