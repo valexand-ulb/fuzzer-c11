@@ -29,6 +29,6 @@ void attempt15(char* cmd); // char * value, generally a string null terminated
 void attempt16(char* cmd); // escape sequence in fields
 // --------------------
 
-extern const unsigned int PADDINGS[11];
+extern const unsigned int PADDINGS[13];
 
 #endif //FUZZER_C11_FUZZ_H

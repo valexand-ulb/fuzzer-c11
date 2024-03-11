@@ -12,7 +12,7 @@
 //      16.4.(1-11)
 
 // padding values
-const unsigned int PADDINGS[12] = {
+const unsigned int PADDINGS[13] = {
         NAME_PADDING,
         MODE_PADDING,
         UID_PADDING,
@@ -155,7 +155,7 @@ void attempt3(char* cmd) {
 void attempt4(char* cmd) {
     const char* filenames[] = {"myfile"};
 
-    for(int i=0, i <= 2, i++) {
+    for(int i=0; i<=2; i++) {
         struct tar_t header1 = {0};
 
         FILE * tar_ptr = create_tar_file("archive.tar");
