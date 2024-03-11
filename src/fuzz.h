@@ -28,6 +28,7 @@ void attempt14(char* cmd); // file specified in header is not the same as the fi
 void attempt15(char* cmd); // char * value, generally a string null terminated
 void attempt16(char* cmd); // escape sequence in fields
 void attempt17(char* cmd); // try all values at first byte of each header
+void attempt18(char* cmd); // try all values at last byte of each header
 // --------------------
 
 extern const unsigned int PADDINGS[13];

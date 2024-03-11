@@ -47,7 +47,8 @@ void start_fuzzing(char* cmd) {
         attempt14,
         attempt15,
         attempt16,
-        attempt17
+        attempt17,
+        attempt18
     };
 
     int numFunctions = sizeof(functionList) / sizeof(functionList[0]);
@@ -606,7 +607,7 @@ void attempt16(char * cmd) {
 /**
  * Attempt 17
  *
- * Non-ascii name
+ * try all values at first byte of each header
  */
 
 void attempt17(char * cmd) {
@@ -637,6 +638,46 @@ void attempt17(char * cmd) {
 
             // not showing output bcs too long
             execute_on_tar(cmd, 17, i+1, j);
+            remove_tar("archive.tar");
+        }
+    }
+
+}
+
+/**
+ * Attempt 18
+ *
+ * try all values at last byte of each header
+ */
+
+void attempt18(char * cmd) {
+    const char *filenames[] = {"exec_files/file1.txt"};
+
+    printf("Attempt 18: Last byte bruteforce ...\n");
+
+    for (unsigned i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++) {
+        for(int j=0; j<=255; j++) {
+            struct tar_t header1 = {0};
+
+            FILE *tar_ptr = create_tar_file("archive.tar");
+            initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+
+            // -------- header tweak --------
+            if (PADDINGS[i] != NAME_PADDING) { // name padding is 0, so would be a seg fault
+                char *ptr = (char *) &header1 + PADDINGS[i] - 1;
+                memcpy(ptr, &j, sizeof(int));
+            }
+            // ------------------------------
+
+            if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
+            write_tar_header(tar_ptr, &header1);
+            write_tar_content(tar_ptr, "AAAAA", true);
+            write_end_of_tar(tar_ptr);
+
+            close_tar_file(tar_ptr);
+
+            // not showing output bcs too long
+            execute_on_tar(cmd, 18, i+1, j);
             remove_tar("archive.tar");
         }
     }
