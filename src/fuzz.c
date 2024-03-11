@@ -205,7 +205,7 @@ void attempt5(char *cmd) {
         // -------- header tweak --------
         tweak_header_field(&header1, PADDINGS[i], "A");
         if(PADDINGS[i] == NAME_PADDING) {
-            // TODO add exec_files/
+            tweak_header_field(&header1, NAME_PADDING, "exec_files/");
         }
         // ------------------------------
 
