@@ -533,7 +533,11 @@ void attempt15(char * cmd) {
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
         // -------- header tweak --------
-        tweak_header_field(&header1, PADDINGS[i], "alex\0");
+        if (PADDINGS[i] == NAME_PADDING) {
+            tweak_header_field(&header1, PADDINGS[i], "exec_files/alex\0");
+        } else {
+            tweak_header_field(&header1, PADDINGS[i], "alex\0");
+        }
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
