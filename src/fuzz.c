@@ -55,6 +55,11 @@ void start_fuzzing(char* cmd) {
     for (int i = 0; i < numFunctions; i++) {
         (*functionList[i])(cmd);
     }
+
+    // remove the exec_files/ dir that contains all the trash made by the extracting processes
+    if (nftw("exec_files", unlink_cb, 64, FTW_DEPTH | FTW_PHYS)) {
+        perror("Error while removing dir exec_files/");
+    }
 }
 
 /**
