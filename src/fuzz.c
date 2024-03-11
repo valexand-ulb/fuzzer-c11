@@ -91,7 +91,7 @@ void attempt1(char* cmd) {
 void attempt2(char * cmd) {
     const char *filenames[] = {"test_files/file1.txt"};
 
-    printf("Attempt 2: Non-ascii name \n");
+    printf("Attempt 2: Non-ascii value \n");
 
     for (unsigned i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++) {
         struct tar_t header1 = {0};
@@ -100,7 +100,11 @@ void attempt2(char * cmd) {
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
         // -------- header tweak --------
-        tweak_header_field(&header1, PADDINGS[i], "😃\0");
+        if (PADDINGS[i] == NAME_PADDING) {
+            tweak_header_field(&header1, PADDINGS[i], "exec_files/😃\0");
+        } else {
+            tweak_header_field(&header1, PADDINGS[i], "😃\0");
+        }
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -110,7 +114,7 @@ void attempt2(char * cmd) {
 
         close_tar_file(tar_ptr);
 
-        printf("\t- attempt 2.%d: Non-ascii name\n\toutput : ", i+1);
+        printf("\t- attempt 2.%d: Non-ascii value\n\toutput : ", i+1);
         execute_on_tar(cmd, 2, i+1, 0);
         remove_tar("archive.tar");
     }
@@ -200,6 +204,9 @@ void attempt5(char *cmd) {
 
         // -------- header tweak --------
         tweak_header_field(&header1, PADDINGS[i], "A");
+        if(PADDINGS[i] == NAME_PADDING) {
+            // TODO add exec_files/
+        }
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -234,6 +241,7 @@ void attempt6(char *cmd) {
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
         // -------- header tweak --------
+        // this is probably making the file that has a number as name
         tweak_header_field(&header1, PADDINGS[i], "");
         // ------------------------------
 
@@ -269,7 +277,8 @@ void attempt7(char *cmd) {
 
         // -------- header tweak --------
         int value = 123456789;
-        tweak_header_field_intval(&header1, PADDINGS[i], &value,"%d");
+        // no need to test the name since its the equivalent of other tests
+        if (PADDINGS[i] != NAME_PADDING) {tweak_header_field_intval(&header1, PADDINGS[i], &value,"%d");}
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -461,7 +470,7 @@ void attempt13(char * cmd) {
 
     // -------- header tweak --------
     tweak_header_field(&header1, TYPEFLAG_PADDING, "5");
-    tweak_header_field(&header1, NAME_PADDING, "test_files/file1.txt/");
+    tweak_header_field(&header1, NAME_PADDING, "exec_files/file1.txt/");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -492,7 +501,7 @@ void attempt14(char * cmd) {
     initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    tweak_header_field(&header1, NAME_PADDING, filenames[1]);
+    tweak_header_field(&header1, NAME_PADDING, "exec_files/thisisrandom");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -560,7 +569,15 @@ void attempt16(char * cmd) {
             initialize_tar_headers_from_file(&header1, filenames[0]);
 
             // -------- header tweak --------
-            tweak_header_field(&header1, PADDINGS[i], escape_sequence[j]);
+            //if its the name, we put it in the dir (to remove weird files easily)
+            char temp[20] = "exec_files/";
+            strcat(temp, escape_sequence[j]);
+
+            if (PADDINGS[i] == NAME_PADDING) {
+                tweak_header_field(&header1, PADDINGS[i], temp);
+            } else {
+                tweak_header_field(&header1, PADDINGS[i], escape_sequence[j]);
+            }
             // ------------------------------
 
             if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
