@@ -623,7 +623,7 @@ void attempt17(char * cmd) {
 
             // -------- header tweak --------
             if (PADDINGS[i] != NAME_PADDING) {
-                char *ptr = (char *) &header + PADDINGS[i];
+                char *ptr = (char *) &header1 + PADDINGS[i];
                 memcpy(ptr, &j, sizeof(int));
             }
             // ------------------------------
