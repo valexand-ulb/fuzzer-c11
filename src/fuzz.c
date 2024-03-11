@@ -12,17 +12,20 @@
 //      16.4.(1-11)
 
 // padding values
-const unsigned int PADDINGS[11] = {SIZE_PADDING,
+const unsigned int PADDINGS[12] = {
+        NAME_PADDING,
         MODE_PADDING,
         UID_PADDING,
         GID_PADDING,
+        SIZE_PADDING,
         MTIME_PADDING,
+        CHKSUM_PADDING,
         TYPEFLAG_PADDING,
         LINKNAME_PADDING,
         MAGIC_PADDING,
         VERSION_PADDING,
         UNAME_PADDING,
-        GNAME_PADDING,};
+        GNAME_PADDING};
 
 void start_fuzzing(char* cmd) {
     // Declare an array of function pointers
@@ -94,12 +97,13 @@ void attempt2(char * cmd) {
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
-
         initialize_tar_headers_from_file(&header1, filenames[0]);
+
         // -------- header tweak --------
         initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "😃\0");
         // ------------------------------
-        calculate_checksum(&header1);
+
+        if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr, filenames[0]);
         write_end_of_tar(tar_ptr);
@@ -150,27 +154,32 @@ void attempt3(char* cmd) {
  */
 void attempt4(char* cmd) {
     const char* filenames[] = {"myfile"};
-    struct tar_t header1 = {0};
 
-    FILE * tar_ptr = create_tar_file("archive.tar");
+    for(int i=0, i <= 2, i++) {
+        struct tar_t header1 = {0};
 
-    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
-    // -------- header tweak --------
-    //initialize_fuzzed_tar_headers(&header1, SIZE_PADDING, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", "%s");
-    memcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", sizeof(header1.size));     // len : 1 + 11 nullbyte
-    // ------------------------------
-    calculate_checksum(&header1);
-    write_tar_header(tar_ptr, &header1);
-    write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
-    write_end_of_tar(tar_ptr);
+        FILE * tar_ptr = create_tar_file("archive.tar");
 
-    close_tar_file(tar_ptr);
+        initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+        // -------- header tweak --------
+        //initialize_fuzzed_tar_headers(&header1, SIZE_PADDING, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", "%s");
+        if(i == 1) { memcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", sizeof(header1.size)); }     // len : 1 + 11 nullbyte
+        if(i == 2) { memcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff", sizeof(header1.size)); }
+        if(i == 3) { memcpy(header1.size, "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff", sizeof(header1.size)); }
+        // ------------------------------
+        calculate_checksum(&header1);
+        write_tar_header(tar_ptr, &header1);
+        write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
+        write_end_of_tar(tar_ptr);
 
-    // ============= TEST =============
-    printf("\nAttempt 4.1: Non-octal size in header \n\toutput : ");
-    execute_on_tar(cmd, 4, 1, 0);
-    remove_tar("archive.tar");      // cleanup tar
-    remove_extracted_files(filenames);        // cleanup files
+        close_tar_file(tar_ptr);
+
+        // ============= TEST =============
+        printf("\nAttempt 4.%d: Non-octal size in header \n\toutput : ", i+1);
+        execute_on_tar(cmd, 4, i+1, 0);
+        remove_tar("archive.tar");      // cleanup tar
+        remove_extracted_files(filenames);        // cleanup files
+    }
 }
 
 
@@ -185,19 +194,15 @@ void attempt5(char *cmd) {
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
-
         struct tar_t header1 = {0};
-
-        //char* arch_name = make_arch_name(5, i+1);
-
         FILE *tar_ptr = create_tar_file("archive.tar");
-
         initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+
         // -------- header tweak --------
-        //strncpy(header1.name, "AAAAAA", sizeof(header1.name)); // non null terminated
         initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "A");
         // ------------------------------
-        calculate_checksum(&header1);
+
+        if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr,filenames[0]);
         write_end_of_tar(tar_ptr);
@@ -225,15 +230,14 @@ void attempt6(char *cmd) {
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
         struct tar_t header1 = {0};
-
         FILE *tar_ptr = create_tar_file("archive.tar");
         initialize_tar_headers_from_file(&header1, filenames[0]);
-        //initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+
         // -------- header tweak --------
-        //strncpy(header1.name, "AAAAAA", sizeof(header1.name)); // non null terminated
         initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "");
         // ------------------------------
-        calculate_checksum(&header1);
+
+        if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
         write_end_of_tar(tar_ptr);
@@ -260,16 +264,15 @@ void attempt7(char *cmd) {
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
         struct tar_t header1 = {0};
-
         FILE *tar_ptr = create_tar_file("archive.tar");
         initialize_tar_headers_from_file(&header1, filenames[0]);
-        //initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+
         // -------- header tweak --------
-        //strncpy(header1.name, "AAAAAA", sizeof(header1.name)); // non null terminated
         int value = 123456789;
         initialize_fuzzed_tar_headers_intval(&header1, PADDINGS[i], &value,"%d");
         // ------------------------------
-        calculate_checksum(&header1);
+
+        if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
         write_end_of_tar(tar_ptr);
@@ -517,7 +520,6 @@ void attempt15(char * cmd) {
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
         struct tar_t header1 = {0};
-
         FILE *tar_ptr = create_tar_file("archive.tar");
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
@@ -525,7 +527,7 @@ void attempt15(char * cmd) {
         initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "alex\0");
         // ------------------------------
 
-        calculate_checksum(&header1);
+        if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
         write_tar_content_from_file(tar_ptr, filenames[0]);
         write_end_of_tar(tar_ptr);
@@ -554,7 +556,6 @@ void attempt16(char * cmd) {
         for (unsigned int j = 0; j < sizeof(escape_sequence)/sizeof(char*); j++)
         {
             struct tar_t header1 = {0};
-
             FILE *tar_ptr = create_tar_file("archive.tar");
             initialize_tar_headers_from_file(&header1, filenames[0]);
 
@@ -562,7 +563,7 @@ void attempt16(char * cmd) {
             initialize_fuzzed_tar_headers(&header1, PADDINGS[i], escape_sequence[j]);
             // ------------------------------
 
-            calculate_checksum(&header1);
+            if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
             write_tar_header(tar_ptr, &header1);
             write_tar_content_from_file(tar_ptr, filenames[0]);
             write_end_of_tar(tar_ptr);
