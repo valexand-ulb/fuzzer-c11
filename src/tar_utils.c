@@ -69,9 +69,6 @@ void initialize_tar_headers(struct tar_t *header, const char* filename, int size
  * @param value: value to be used for fuzzing
  */
 void tweak_header_field(struct tar_t *header,unsigned padding, const char *value) {
-    // char* ptr = (char*) header+padding;
-    // snprintf(ptr, strlen(value), format, value);
-
     char *ptr = (char *) header + padding;
     size_t size = strlen(value);
 
@@ -79,16 +76,15 @@ void tweak_header_field(struct tar_t *header,unsigned padding, const char *value
 }
 
 /**
- * Initializes the tar headers with fuzzed a secific metadata of the file. The specific metadata is determined by the padding
+ * Fills the tar headers with 0x43's.
  * @param headers : pointer to the tar header
  * @param padding: padding to be used for fuzzing
- * @param value: value to be used for fuzzing
  */
-void fill_header_field(struct tar_t *header,unsigned padding, const char *value) {
-    // char* ptr = (char*) header+padding;
-    // snprintf(ptr, strlen(value), format, value);
+void fill_header_field(struct tar_t *header,unsigned padding) {
 
     char *ptr = (char *) header + padding;
+    // make sure that the value covers (at least) the header field
+    char value[] = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
     int size = 0;
 
     // determine size depending on padding
