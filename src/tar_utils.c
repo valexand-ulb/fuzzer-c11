@@ -208,16 +208,6 @@ void close_tar_file(FILE* tar_file_ptr){
 }
 
 /**
- * Renames the tar file when the archive has crashed the program
- * @param tar_file : pointer to the tar file
- * @param new_name : new name of the tar file
- */
-void rename_tar_file(FILE* tar_file_ptr, const char* new_name){
-    //fclose(tar_file_ptr); // close the file before renaming, otherwise it will not be renamed
-    rename("archive.tar", new_name);
-}
-
-/**
  * Removes specified file
  *
  * @param filename : name (path) of the file to be removed
@@ -242,7 +232,7 @@ void remove_directory(const char *path) {
     char full_path[50];
 
     if (!d) {
-        perror("opendir");
+        perror("Error while removing a dir : opendir");
         return;
     }
 
@@ -255,7 +245,7 @@ void remove_directory(const char *path) {
 
         struct stat statbuf;
         if (stat(full_path, &statbuf) == -1) {
-            perror("stat");
+            perror("Error while removing a dir : stat");
             continue;
         }
 
@@ -264,7 +254,7 @@ void remove_directory(const char *path) {
         } else {
             r = unlink(full_path); // Remove file
             if (r == -1) {
-                perror("unlink");
+                perror("Error while removing a dir : unlink");
                 continue;
             }
         }
@@ -274,7 +264,7 @@ void remove_directory(const char *path) {
 
     r = rmdir(path); // Remove the directory itself
     if (r == -1) {
-        perror("rmdir");
+        perror("Error while removing a dir : rmdir");
         return;
     }
 }

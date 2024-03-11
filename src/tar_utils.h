@@ -34,8 +34,6 @@ void write_file_contents(FILE* tar_file, FILE* file);
 // TAR MANIPULATION
 FILE * create_tar_file(const char* filename);
 
-void rename_tar_file(FILE* tar_file_ptr, const char* new_name);
-
 void write_tar_header(FILE* tar_file_ptr, struct tar_t *header);
 
 void write_tar_content_from_file(FILE *tar_file_ptr, const char *filename);
