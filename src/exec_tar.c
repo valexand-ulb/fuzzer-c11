@@ -1,18 +1,8 @@
 #include "exec_tar.h"
 
-
-/*void rename_crash_archive(int crash_number) {
-    char oldname[] = "archive.tar";
-    char newname[50];
-    snprintf(newname, 50, "crashing_tar_files/crash%d.tar", crash_number);
-
-    if(rename(oldname, newname) == 0) {
-        printf("File renamed successfully\n");
-    } else {
-        printf("Error: unable to rename the file\n");
-    }
-}*/
-
+/**
+ * Executes the extractor on the created archives
+ */
 int execute_on_tar(char cmd[51], int current_attempt, int current_attempt_step, int current_attempt_sub_step, bool print_output) {
     char buf[33];
     int rv = 0;
@@ -37,6 +27,7 @@ int execute_on_tar(char cmd[51], int current_attempt, int current_attempt_step, 
         // rename file if success (non-renamed files will be removed)
         char* new_name = make_arch_name(current_attempt, current_attempt_step, current_attempt_sub_step);
         rename("archive.tar", new_name);
+        free(new_name);
 
         goto finally;
     }
@@ -49,6 +40,12 @@ int execute_on_tar(char cmd[51], int current_attempt, int current_attempt_step, 
     return rv;
 }
 
+
+/**
+ * Creates and return a char* with format success_archive[nbr1]-[nbr2]-[nbr3]
+ *
+ * Used to hold trace of which archive crashed
+ */
 char* make_arch_name(int nbr1, int nbr2, int nbr3) {
     char attempt_num_str[5];
     sprintf(attempt_num_str, "%d", nbr1);

@@ -70,13 +70,18 @@ void start_fuzzing(char* cmd) {
 void attempt1(char* cmd) {
     const char* filenames[] = {"myfile"};
     struct tar_t header1 = {0};
-
     FILE * tar_ptr = create_tar_file("archive.tar");
 
-    initialize_tar_headers(&header1, filenames[0], 5, time(NULL)); // default tar header
-    write_tar_header(tar_ptr, &header1);
-    write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);
-    write_end_of_tar(tar_ptr);
+    // places default values in the tar header
+    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
+
+    // -------- header tweak --------
+        // here will be the modification of the attempt
+    // ------------------------------
+
+    write_tar_header(tar_ptr, &header1);    // writes the tar header struct in the actual file
+    write_tar_content(tar_ptr, "\x41\x42\x43\x44\x0a", true);   // writes a default content in the tar
+    write_end_of_tar(tar_ptr); // writes the last block of null bytes
 
     close_tar_file(tar_ptr);
 
