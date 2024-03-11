@@ -18,6 +18,8 @@ void initialize_tar_headers(struct tar_t *header, const char* filename, int size
 
 void tweak_header_field(struct tar_t *header,unsigned padding, const char *value);
 
+void fill_header_field(struct tar_t *header,unsigned padding, const char *value);
+
 void tweak_header_field_intval(struct tar_t * header, unsigned padding, int * value, const char *format);
 
 unsigned int calculate_checksum(struct tar_t* entry);

@@ -78,6 +78,32 @@ void tweak_header_field(struct tar_t *header,unsigned padding, const char *value
     memcpy(ptr, value, size);
 }
 
+/**
+ * Initializes the tar headers with fuzzed a secific metadata of the file. The specific metadata is determined by the padding
+ * @param headers : pointer to the tar header
+ * @param padding: padding to be used for fuzzing
+ * @param value: value to be used for fuzzing
+ */
+void fill_header_field(struct tar_t *header,unsigned padding, const char *value) {
+    // char* ptr = (char*) header+padding;
+    // snprintf(ptr, strlen(value), format, value);
+
+    char *ptr = (char *) header + padding;
+    int size = 0;
+
+    // determine size depending on padding
+    if (padding == NAME_PADDING || padding == LINKNAME_PADDING) { size = 100; }
+    else if (padding == MODE_PADDING || padding == UID_PADDING || padding == GID_PADDING || padding == CHKSUM_PADDING || padding == DEVMAJOR_PADDING || padding == DEVMINOR_PADDING) { size = 8; }
+    else if (padding == SIZE_PADDING || padding == MTIME_PADDING) { size = 12; }
+    else if (padding == TYPEFLAG_PADDING) { size = 1; }
+    else if (padding == MAGIC_PADDING) { size = 6; }
+    else if (padding == VERSION_PADDING) { size = 2; }
+    else if (padding == UNAME_PADDING || padding == GNAME_PADDING) { size = 32; }
+    else if (padding == PREFIX_PADDING) { size = 155; }
+
+    memcpy(ptr, value, size);
+}
+
 void tweak_header_field_intval(struct tar_t * header, unsigned padding, int * value, const char *format) {
     char* ptr = (char*) header+padding;
     snprintf(ptr, sizeof(ptr), format, value);

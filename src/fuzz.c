@@ -203,7 +203,7 @@ void attempt5(char *cmd) {
         initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
-        tweak_header_field(&header1, PADDINGS[i], "A");
+        fill_header_field(&header1, PADDINGS[i], "A");
         if(PADDINGS[i] == NAME_PADDING) {
             tweak_header_field(&header1, NAME_PADDING, "exec_files/");
         }
