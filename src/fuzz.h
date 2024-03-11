@@ -27,6 +27,7 @@ void attempt13(char* cmd); // file but the filename and the typeflag are set to 
 void attempt14(char* cmd); // file specified in header is not the same as the file in the tar
 void attempt15(char* cmd); // char * value, generally a string null terminated
 void attempt16(char* cmd); // escape sequence in fields
+void attempt17(char* cmd); // try all values at first byte of each header
 // --------------------
 
 extern const unsigned int PADDINGS[13];
