@@ -7,4 +7,5 @@ crashing_tar_files/archive.tar
 /cmake-build-debug/
 /CMakeLists.txt
 /test_files/file1.txt
+/exec_files/**
 /monfichier.txt

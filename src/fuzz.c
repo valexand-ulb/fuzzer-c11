@@ -89,7 +89,7 @@ void attempt1(char* cmd) {
  */
 
 void attempt2(char * cmd) {
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
 
     printf("Attempt 2: Non-ascii value \n");
 
@@ -97,7 +97,7 @@ void attempt2(char * cmd) {
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
-        initialize_tar_headers_from_file(&header1, filenames[0]);
+        initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
         if (PADDINGS[i] == NAME_PADDING) {
@@ -109,7 +109,7 @@ void attempt2(char * cmd) {
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
-        write_tar_content_from_file(tar_ptr, filenames[0]);
+        write_tar_content(tar_ptr, "AAAAA", true);
         write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
@@ -193,7 +193,7 @@ void attempt4(char* cmd) {
  * non null terminated field
  */
 void attempt5(char *cmd) {
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
     printf("\nAttempt 5: non null terminated field \n");
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
@@ -211,7 +211,7 @@ void attempt5(char *cmd) {
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
-        write_tar_content_from_file(tar_ptr,filenames[0]);
+        write_tar_content(tar_ptr, "AAAAA", true);
         write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
@@ -231,14 +231,14 @@ void attempt5(char *cmd) {
  */
 
 void attempt6(char *cmd) {
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
     printf("\nAttempt 6: Empty field \n");
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
         struct tar_t header1 = {0};
         FILE *tar_ptr = create_tar_file("archive.tar");
-        initialize_tar_headers_from_file(&header1, filenames[0]);
+        initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
         // this is probably making the file that has a number as name
@@ -247,7 +247,7 @@ void attempt6(char *cmd) {
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
-        write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
+        write_tar_content(tar_ptr, "AAAAA", true);
         write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
@@ -266,14 +266,14 @@ void attempt6(char *cmd) {
  */
 
 void attempt7(char *cmd) {
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
     printf("\nAttempt 7: Int format instead of char * or octal \n");
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
         struct tar_t header1 = {0};
         FILE *tar_ptr = create_tar_file("archive.tar");
-        initialize_tar_headers_from_file(&header1, filenames[0]);
+        initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
         int value = 123456789;
@@ -283,7 +283,7 @@ void attempt7(char *cmd) {
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
-        write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
+        write_tar_content(tar_ptr, "AAAAA", true);
         write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
@@ -301,7 +301,7 @@ void attempt7(char *cmd) {
  * Specific value for time padding
  */
 void attempt8(char *cmd) {
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
     printf("\nAttempt 8: Specific value for time padding \n");
 
     // 2147483649 is the value for the bug of year 2038, thanks to Alan for the tips time(NULL) * time(NULL)
@@ -311,14 +311,14 @@ void attempt8(char *cmd) {
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
-        initialize_tar_headers_from_file(&header1, filenames[0]);
+        initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
         tweak_header_field_intval(&header1, MTIME_PADDING,  (int *) time_list[i], "%o");
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
-        write_tar_content_from_file(tar_ptr, "test_files/file1.txt");
+        write_tar_content(tar_ptr, "AAAAA", true);
         write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
@@ -359,13 +359,13 @@ void attempt9(char *cmd) {
  */
 void attempt10(char *cmd) {
     printf("Attempt 10: Different value for typeflag header\n");
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
 
     for (int i=-1; i < 5; i++) {
         struct tar_t header1 = {0};
 
         FILE *tar_ptr = create_tar_file("archive.tar");
-        initialize_tar_headers_from_file(&header1,filenames[0]);
+        initialize_tar_headers(&header1,filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
 
@@ -377,7 +377,7 @@ void attempt10(char *cmd) {
 
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
-        write_tar_content_from_file(tar_ptr, filenames[0]);
+        write_tar_content(tar_ptr, "AAAAA", true);
         write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
@@ -396,13 +396,12 @@ void attempt10(char *cmd) {
  */
 void attempt11(char * cmd) {
     printf("Attempt 11: Tar archive on a folder and setting the typeflag to '5' (directory)\n");
-    const char *filenames[] = {"test_files"};
+    const char *filenames[] = {"exec_files"};
 
     struct tar_t header1 = {0};
 
     FILE *tar_ptr = create_tar_file("archive.tar");
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
-    //initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
     tweak_header_field(&header1, TYPEFLAG_PADDING, "5");
@@ -410,7 +409,7 @@ void attempt11(char * cmd) {
 
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
-    //write_tar_content_from_file(tar_ptr, "test_files");
+    // no content
     write_end_of_tar(tar_ptr);
 
     close_tar_file(tar_ptr);
@@ -429,12 +428,12 @@ void attempt11(char * cmd) {
  */
 void attempt12(char * cmd) {
     printf("Attempt 12: Tar archive on a folder but setting the typeflag to '0' (regular file)\n");
-    const char *filenames[] = {"test_files"};
+    const char *filenames[] = {"exec_files"};
 
     struct tar_t header1 = {0};
 
     FILE *tar_ptr = create_tar_file("archive.tar");
-    initialize_tar_headers_from_file(&header1, filenames[0]);
+    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
     // -------- header tweak --------
     tweak_header_field(&header1, TYPEFLAG_PADDING, "0");
@@ -442,7 +441,7 @@ void attempt12(char * cmd) {
 
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
-    //write_tar_content_from_file(tar_ptr, "test_files");
+    // no content
     write_end_of_tar(tar_ptr);
 
     close_tar_file(tar_ptr);
@@ -461,12 +460,12 @@ void attempt12(char * cmd) {
 
 void attempt13(char * cmd) {
     printf("Attempt 13: Tar archive on a file but setting the filename and the typeflag to directory\n");
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
 
     struct tar_t header1 = {0};
 
     FILE *tar_ptr = create_tar_file("archive.tar");
-    initialize_tar_headers_from_file(&header1, filenames[0]);
+    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
     // -------- header tweak --------
     tweak_header_field(&header1, TYPEFLAG_PADDING, "5");
@@ -475,7 +474,7 @@ void attempt13(char * cmd) {
 
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
-    write_tar_content_from_file(tar_ptr, filenames[0]);
+    write_tar_content(tar_ptr, "AAAAA", true);
     write_end_of_tar(tar_ptr);
 
     close_tar_file(tar_ptr);
@@ -493,12 +492,12 @@ void attempt13(char * cmd) {
  */
 void attempt14(char * cmd) {
     printf("Attempt 14: File specified in header is not the same as the file in the tar\n");
-    const char *filenames[] = {"test_files/file1.txt", "test_files/file2.txt"};
+    const char *filenames[] = {"exec_files/file1.txt", "exec_files/file2.txt"};
 
     struct tar_t header1 = {0};
 
     FILE *tar_ptr = create_tar_file("archive.tar");
-    initialize_tar_headers_from_file(&header1, filenames[0]);
+    initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
     // -------- header tweak --------
     tweak_header_field(&header1, NAME_PADDING, "exec_files/thisisrandom");
@@ -506,7 +505,7 @@ void attempt14(char * cmd) {
 
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
-    write_tar_content_from_file(tar_ptr, filenames[0]);
+    write_tar_content(tar_ptr, "AAAAA", true);
     write_end_of_tar(tar_ptr);
 
     close_tar_file(tar_ptr);
@@ -524,13 +523,13 @@ void attempt14(char * cmd) {
  */
 void attempt15(char * cmd) {
     printf("Attempt 15: Char * value, generally a string null terminated\n");
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
         struct tar_t header1 = {0};
         FILE *tar_ptr = create_tar_file("archive.tar");
-        initialize_tar_headers_from_file(&header1, filenames[0]);
+        initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
         if (PADDINGS[i] == NAME_PADDING) {
@@ -542,7 +541,7 @@ void attempt15(char * cmd) {
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
         write_tar_header(tar_ptr, &header1);
-        write_tar_content_from_file(tar_ptr, filenames[0]);
+        write_tar_content(tar_ptr, "AAAAA", true);
         write_end_of_tar(tar_ptr);
 
         close_tar_file(tar_ptr);
@@ -562,7 +561,7 @@ void attempt15(char * cmd) {
 void attempt16(char * cmd) {
     printf("Attempt 16: Escape sequence in fields\n");
     const char * escape_sequence[] = {"\n", "\t", "\r", "\b", "\a", "\f", "\v", "\\", "\'", "\"", "\?", "\0"};
-    const char *filenames[] = {"test_files/file1.txt"};
+    const char *filenames[] = {"exec_files/file1.txt"};
 
     for (unsigned int i = 0; i < sizeof(PADDINGS)/sizeof(unsigned); i++)
     {
@@ -570,7 +569,7 @@ void attempt16(char * cmd) {
         {
             struct tar_t header1 = {0};
             FILE *tar_ptr = create_tar_file("archive.tar");
-            initialize_tar_headers_from_file(&header1, filenames[0]);
+            initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
             // -------- header tweak --------
             //if its the name, we put it in the dir (to remove weird files easily)
@@ -586,7 +585,7 @@ void attempt16(char * cmd) {
 
             if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
             write_tar_header(tar_ptr, &header1);
-            write_tar_content_from_file(tar_ptr, filenames[0]);
+            write_tar_content(tar_ptr, "AAAAA", true);
             write_end_of_tar(tar_ptr);
 
             close_tar_file(tar_ptr);
