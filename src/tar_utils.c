@@ -234,3 +234,48 @@ void remove_extracted_files(const char** filenames) {
     }
 }
 
+void remove_directory(const char *path) {
+    DIR *d = opendir(path);
+    int r;
+
+    struct dirent *dir;
+    char full_path[50];
+
+    if (!d) {
+        perror("opendir");
+        return;
+    }
+
+    while ((dir = readdir(d)) != NULL) {
+        if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
+            continue;
+        }
+
+        snprintf(full_path, sizeof(full_path), "%s/%s", path, dir->d_name);
+
+        struct stat statbuf;
+        if (stat(full_path, &statbuf) == -1) {
+            perror("stat");
+            continue;
+        }
+
+        if (S_ISDIR(statbuf.st_mode)) {
+            remove_directory(full_path); // Recursively remove subdirectories
+        } else {
+            r = unlink(full_path); // Remove file
+            if (r == -1) {
+                perror("unlink");
+                continue;
+            }
+        }
+    }
+
+    closedir(d);
+
+    r = rmdir(path); // Remove the directory itself
+    if (r == -1) {
+        perror("rmdir");
+        return;
+    }
+}
+

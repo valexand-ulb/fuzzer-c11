@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <dirent.h>
 
 #include "tar_header.h"
 
@@ -46,5 +49,7 @@ void close_tar_file(FILE* tar_file_ptr);
 void remove_tar(const char* filename);
 
 void remove_extracted_files(const char** filenames);
+
+void remove_directory(const char *path);
 
 #endif //FUZZER_GENERATE_TAR_H

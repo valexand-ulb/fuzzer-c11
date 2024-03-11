@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <ftw.h>
 
 #include "tar_utils.h"
 #include "exec_tar.h"
