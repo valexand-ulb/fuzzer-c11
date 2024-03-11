@@ -100,7 +100,7 @@ void attempt2(char * cmd) {
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
         // -------- header tweak --------
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "😃\0");
+        tweak_header_field(&header1, PADDINGS[i], "😃\0");
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -131,7 +131,7 @@ void attempt3(char* cmd) {
     initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
     // -------- header tweak --------
     snprintf(header1.size, sizeof(header1.size), "%011lo", 4294967295); // this gives 37777777777 (len: 11) in octal
-    //initialize_fuzzed_tar_headers(&header1, SIZE_PADDING,"4294967295", "%011lo");
+    //tweak_header_field(&header1, SIZE_PADDING,"4294967295", "%011lo");
     // ------------------------------
     calculate_checksum(&header1);
     write_tar_header(tar_ptr, &header1);
@@ -162,7 +162,7 @@ void attempt4(char* cmd) {
 
         initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
         // -------- header tweak --------
-        //initialize_fuzzed_tar_headers(&header1, SIZE_PADDING, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", "%s");
+        //tweak_header_field(&header1, SIZE_PADDING, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", "%s");
         if(i == 1) { memcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", sizeof(header1.size)); }     // len : 1 + 11 nullbyte
         if(i == 2) { memcpy(header1.size, "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff", sizeof(header1.size)); }
         if(i == 3) { memcpy(header1.size, "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff", sizeof(header1.size)); }
@@ -199,7 +199,7 @@ void attempt5(char *cmd) {
         initialize_tar_headers(&header1, filenames[0], 5, time(NULL));
 
         // -------- header tweak --------
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "A");
+        tweak_header_field(&header1, PADDINGS[i], "A");
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -234,7 +234,7 @@ void attempt6(char *cmd) {
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
         // -------- header tweak --------
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "");
+        tweak_header_field(&header1, PADDINGS[i], "");
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -269,7 +269,7 @@ void attempt7(char *cmd) {
 
         // -------- header tweak --------
         int value = 123456789;
-        initialize_fuzzed_tar_headers_intval(&header1, PADDINGS[i], &value,"%d");
+        tweak_header_field_intval(&header1, PADDINGS[i], &value,"%d");
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -305,7 +305,7 @@ void attempt8(char *cmd) {
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
         // -------- header tweak --------
-        initialize_fuzzed_tar_headers_intval(&header1, MTIME_PADDING,  (int *) time_list[i], "%o");
+        tweak_header_field_intval(&header1, MTIME_PADDING,  (int *) time_list[i], "%o");
         // ------------------------------
         calculate_checksum(&header1);
         write_tar_header(tar_ptr, &header1);
@@ -363,7 +363,7 @@ void attempt10(char *cmd) {
         char *buffer = (char *) malloc(2 * sizeof(char)); // int to char *
         snprintf(buffer, 2, "%u", i);
 
-        initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, buffer);
+        tweak_header_field(&header1, TYPEFLAG_PADDING, buffer);
         // ------------------------------
 
         calculate_checksum(&header1);
@@ -396,7 +396,7 @@ void attempt11(char * cmd) {
     //initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5");
+    tweak_header_field(&header1, TYPEFLAG_PADDING, "5");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -428,7 +428,7 @@ void attempt12(char * cmd) {
     initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "0");
+    tweak_header_field(&header1, TYPEFLAG_PADDING, "0");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -460,8 +460,8 @@ void attempt13(char * cmd) {
     initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    initialize_fuzzed_tar_headers(&header1, TYPEFLAG_PADDING, "5");
-    initialize_fuzzed_tar_headers(&header1, NAME_PADDING, "test_files/file1.txt/");
+    tweak_header_field(&header1, TYPEFLAG_PADDING, "5");
+    tweak_header_field(&header1, NAME_PADDING, "test_files/file1.txt/");
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -492,7 +492,7 @@ void attempt14(char * cmd) {
     initialize_tar_headers_from_file(&header1, filenames[0]);
 
     // -------- header tweak --------
-    initialize_fuzzed_tar_headers(&header1, NAME_PADDING, filenames[1]);
+    tweak_header_field(&header1, NAME_PADDING, filenames[1]);
     // ------------------------------
 
     calculate_checksum(&header1);
@@ -524,7 +524,7 @@ void attempt15(char * cmd) {
         initialize_tar_headers_from_file(&header1, filenames[0]);
 
         // -------- header tweak --------
-        initialize_fuzzed_tar_headers(&header1, PADDINGS[i], "alex\0");
+        tweak_header_field(&header1, PADDINGS[i], "alex\0");
         // ------------------------------
 
         if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
@@ -560,7 +560,7 @@ void attempt16(char * cmd) {
             initialize_tar_headers_from_file(&header1, filenames[0]);
 
             // -------- header tweak --------
-            initialize_fuzzed_tar_headers(&header1, PADDINGS[i], escape_sequence[j]);
+            tweak_header_field(&header1, PADDINGS[i], escape_sequence[j]);
             // ------------------------------
 
             if (PADDINGS[i] != CHKSUM_PADDING) {calculate_checksum(&header1);} // dont calculate chksum if we fuzz chksum
